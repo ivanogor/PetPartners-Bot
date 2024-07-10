@@ -50,7 +50,7 @@ public class HandleMessageServiceImpl implements HandleMessageService {
     private void switchText(String updateText, Long chatId) {
         logger.info("Was invoked swtching message with text method");
         //Это я пытаюсь привязать кнопки в чат. Пока в процессе***********
-        Keyboard keyboard = new ReplyKeyboardMarkup(
+        ReplyKeyboardMarkup keyboard = new ReplyKeyboardMarkup(
                 new KeyboardButton[]{
                         new KeyboardButton("Узнать информацию о приюте"),
                         new KeyboardButton("Как взять животное из приюта"),
@@ -58,11 +58,14 @@ public class HandleMessageServiceImpl implements HandleMessageService {
                         new KeyboardButton("Позвать волонтера")
                 }
         );
+        keyboard.resizeKeyboard(true);
+        keyboard.oneTimeKeyboard(false);
+        keyboard.selective(false);
         //***************************************************************
         switch (updateText) {
             case ("/start"):
                 String messageText = messageService.findByType("welcomeMessage").getText();
-                SendMessage message = new SendMessage(chatId, messageText);
+                SendMessage message = new SendMessage(chatId, messageText).replyMarkup(keyboard);
                 SendResponse response = bot.execute(message);
                 if (!response.isOk()) {
                     logger.error("Response isn't correct. Error code: " + response.errorCode());
