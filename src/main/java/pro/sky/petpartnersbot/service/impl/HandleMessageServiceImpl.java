@@ -12,6 +12,10 @@ import org.springframework.stereotype.Service;
 import pro.sky.petpartnersbot.entity.PetParent;
 import pro.sky.petpartnersbot.service.HandleMessageService;
 
+/**
+ * Сервис для обработки сообщений от Telegram бота.
+ * Этот класс отвечает за анализ и обработку входящих сообщений, а также за взаимодействие с пользователем через Telegram.
+ */
 @Service
 @RequiredArgsConstructor
 public class HandleMessageServiceImpl implements HandleMessageService {
@@ -20,6 +24,13 @@ public class HandleMessageServiceImpl implements HandleMessageService {
     private final MessageServiceImpl messageService;
     private final PetParentServiceImpl parentService;
 
+    /**
+     * Обрабатывает входящее сообщение от Telegram API.
+     * Если пользователь впервые использует чат, добавляет его в базу данных и переходит к анализу сообщений.
+     * Иначе перенаправляет пользователя к выбору приюта.
+     *
+     * @param update Входящее обновление от Telegram API.
+     */
     @Override
     public void handleMessage(Update update) {
         if (update.message() != null) {
@@ -36,7 +47,12 @@ public class HandleMessageServiceImpl implements HandleMessageService {
             switchText(updateText, chatId, keyboard, update);
         }
     }
-
+    /**
+     * Анализирует текст сообщения и выполняет соответствующие действия.
+     *
+     * @param updateText Текст сообщения.
+     * @param chatId     Идентификатор чата.
+     */
     //Метод анализа сообщений
     private void switchText(String updateText, Long chatId, Keyboard keyboard, Update update) {
         logger.info("Was invoked swtching message with text method");
