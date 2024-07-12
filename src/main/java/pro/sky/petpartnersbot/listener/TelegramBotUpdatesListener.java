@@ -19,6 +19,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
     private final TelegramBot telegramBot;
     private final HandleMessageServiceImpl handler;
 
+    //
     @PostConstruct
     public void init() {
         telegramBot.setUpdatesListener(this);

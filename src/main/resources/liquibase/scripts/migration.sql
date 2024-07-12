@@ -21,3 +21,9 @@ create TABLE pet_parents(
 -- changeset n_mazin:step2_drop_not_null_in_parents_table
 ALTER TABLE pet_parents ALTER COLUMN first_name DROP NOT NULL;
 ALTER TABLE pet_parents ALTER COLUMN last_name DROP NOT NULL;
+
+-- changeset n_mazin:step3_drop_not_null_for_userName_in_parents_table
+ALTER TABLE pet_parents ALTER COLUMN user_name DROP NOT NULL;
+
+-- changeset n_mazin:step4_change_welcome_message_text
+UPDATE messages set text = 'Привет. Я чат-бот для взаимодействия с приютами для собачек. С моей помощью ты сожешь приютить собаку, а я подскажу как это сделать';
