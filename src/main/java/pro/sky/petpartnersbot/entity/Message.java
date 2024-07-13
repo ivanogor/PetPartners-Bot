@@ -1,6 +1,8 @@
 package pro.sky.petpartnersbot.entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -12,15 +14,17 @@ import lombok.NoArgsConstructor;
 @Entity
 @Table(name = "messages")
 @NoArgsConstructor
+@Builder
+@AllArgsConstructor
 public class Message {
     /**
-     * Уникальный идентификатор сообщения.
-     * Это поле генерируется автоматически и является первичным ключом в таблице.
+     * Тип сообщения.
+     * Это поле хранит информацию о типе сообщения, которая может использоваться для различных целей,
+     * например, для фильтрации или обработки сообщений.
      */
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
-    private long id;
+    @Column(name = "type")
+    private String type;
 
     /**
      * Текст сообщения.
@@ -28,12 +32,4 @@ public class Message {
      */
     @Column(name = "text")
     private String text;
-
-    /**
-     * Тип сообщения.
-     * Это поле хранит информацию о типе сообщения, которая может использоваться для различных целей,
-     * например, для фильтрации или обработки сообщений.
-     */
-    @Column(name = "type")
-    private String type;
 }

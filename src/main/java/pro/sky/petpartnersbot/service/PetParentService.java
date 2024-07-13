@@ -1,11 +1,11 @@
 package pro.sky.petpartnersbot.service;
 
-import pro.sky.petpartnersbot.entity.PetParent;
+import pro.sky.petpartnersbot.entity.User;
 
 public interface PetParentService {
-    PetParent findByChatId(Long chatId);
+    User findByChatId(Long chatId);
 
-    void addParent(PetParent petParent);
+    void addParent(User user);
 
     void deleteParent(long id);
 }

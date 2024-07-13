@@ -9,7 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import pro.sky.petpartnersbot.entity.PetParent;
+import pro.sky.petpartnersbot.entity.User;
 import pro.sky.petpartnersbot.service.HandleMessageService;
 
 /**
@@ -21,8 +21,8 @@ import pro.sky.petpartnersbot.service.HandleMessageService;
 public class HandleMessageServiceImpl implements HandleMessageService {
     private final Logger logger = LoggerFactory.getLogger(HandleMessageServiceImpl.class);
     private final TelegramBot bot;
-    private final MessageServiceImpl messageService;
     private final PetParentServiceImpl parentService;
+    private final MessageServiceImpl messageService;
 
     /**
      * Обрабатывает входящее сообщение от Telegram API.
@@ -44,9 +44,10 @@ public class HandleMessageServiceImpl implements HandleMessageService {
                     .addRow(new KeyboardButton("Позвать волонтера"))
                     .resizeKeyboard(true).oneTimeKeyboard(false);
             //Переход к анализу сообщений
-            switchText(updateText, chatId, keyboard, update);
+            processText(updateText, chatId, keyboard, update);
         }
     }
+
     /**
      * Анализирует текст сообщения и выполняет соответствующие действия.
      *
@@ -54,76 +55,72 @@ public class HandleMessageServiceImpl implements HandleMessageService {
      * @param chatId     Идентификатор чата.
      */
     //Метод анализа сообщений
-    private void switchText(String updateText, Long chatId, Keyboard keyboard, Update update) {
-        logger.info("Was invoked swtching message with text method");
+    private void processText(String updateText, Long chatId, Keyboard keyboard, Update update) {
+        logger.info("Was invoked switching message with text method");
         SendMessage message;
         SendResponse response;
         //Анализ выбранной кнопки меню или команды /start
         switch (updateText) {
-            case ("/start"):
+            case "/start" -> {
                 //Если пользователь впревые использует чат, то добавляем его в БД
                 if (parentService.findByChatId(chatId) == null) {
-                    parentService.addParent(new PetParent(1, chatId, update.message().chat().username(),
-                            update.message().chat().firstName(), update.message().chat().lastName(),
-                            "", false, false));
-                    String messageText = messageService.findByType("welcomeMessage").getText();
+                    parentService.addParent(new User());
+                    String messageText = messageService.findById("welcomeMessage").getText();
                     message = new SendMessage(chatId, messageText).replyMarkup(keyboard);
-                    response = bot.execute(message);
-                    //Проверка выполнения отправки сообщения
-                    checkResponce(response);
-                //Иначе перенаправляем к выбору приюта
+                    //Иначе перенаправляем к выбору приюта
                 } else {
                     message = new SendMessage(chatId,
                             "Выбор приюта <функционал в разработке>").replyMarkup(keyboard);
-                    response = bot.execute(message);
-                    //Проверка выполнения отправки сообщения
-                    checkResponce(response);
                 }
-                break;
-            case ("Узнать информацию о приюте"):
+                //Проверка выполнения отправки сообщения
+                response = bot.execute(message);
+                checkResponse(response);
+            }
+            case "Узнать информацию о приюте" -> {
                 //Добавить инфу из приюта из сущности***********
                 message = new SendMessage(chatId, "Информация о приюте <функционал в разработке>");
                 response = bot.execute(message);
                 //Проверка выполнения отправки сообщения
-                checkResponce(response);
-                break;
-            case ("Как взять животное из приюта?"):
+                checkResponse(response);
+            }
+            case "Как взять животное из приюта?" -> {
                 //Добавить инфу из приюта из сущности***********
                 message = new SendMessage(chatId, "Как взять животное из приюта <функционал в разработке>");
                 response = bot.execute(message);
                 //Проверка выполнения отправки сообщения
-                checkResponce(response);
-                break;
-            case ("Прислать отчет о питомце"):
+                checkResponse(response);
+            }
+            case ("Прислать отчет о питомце") -> {
                 //Добавить инфу в отчет в сущность***********
                 message = new SendMessage(chatId, "Прислать отчет о питомце <функционал в разработке>");
                 response = bot.execute(message);
                 //Проверка выполнения отправки сообщения
-                checkResponce(response);
-                break;
-            case ("Позвать волонтера"):
+                checkResponse(response);
+            }
+            case "Позвать волонтера" -> {
                 //Добавить инфу из приюта из сущности***********
                 message = new SendMessage(chatId, "Позвать волонтера <функционал в разработке>");
                 response = bot.execute(message);
                 //Проверка выполнения отправки сообщения
-                checkResponce(response);
-                break;
-            case ("/delete"):
+                checkResponse(response);
+            }
+            case "/delete" ->
                 //Если пользователь уже добавлен, то удаляю его. Это для теста
-                parentService.deleteParent(parentService.findByChatId(chatId).getId());
-                break;
-            default:
+                parentService.deleteParent(parentService.findByChatId(chatId).getChatId());
+
+            default -> {
                 message = new SendMessage(chatId, "Выберите необходимый пункт в меню");
                 response = bot.execute(message);
                 //Проверка выполнения отправки сообщения
-                checkResponce(response);
+                checkResponse(response);
+            }
         }
     }
 
     //Метод проверки отправки сообщения
-    private void checkResponce(SendResponse response) {
+    private void checkResponse(SendResponse response) {
         if (!response.isOk()) {
-            logger.error("Response isn't correct. Error code: " + response.errorCode());
+            logger.error("Response isn't correct. Error code: {}", response.errorCode());
         }
     }
 }
