@@ -6,7 +6,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import pro.sky.petpartnersbot.entity.User;
 import pro.sky.petpartnersbot.repository.UserRepository;
-import pro.sky.petpartnersbot.service.PetParentService;
+import pro.sky.petpartnersbot.service.UserService;
 
 
 /**
@@ -15,8 +15,8 @@ import pro.sky.petpartnersbot.service.PetParentService;
  */
 @Service
 @RequiredArgsConstructor
-public class PetParentServiceImpl implements PetParentService {
-    private final Logger logger = LoggerFactory.getLogger(PetParentServiceImpl.class);
+public class UserServiceImpl implements UserService {
+    private final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
     private final UserRepository repository;
 
     /**
@@ -26,9 +26,9 @@ public class PetParentServiceImpl implements PetParentService {
      * @return Объект User, соответствующий заданному идентификатору чата, или null, если такой записи нет.
      */
     @Override
-    public User findByChatId(Long chatId) {
+    public User findById(Long chatId) {
         logger.info("Was invoked find User by ChatId method");
-        return repository.findByChatId(chatId);
+        return repository.findById(chatId).orElse(null);
     }
 
     /**
@@ -37,7 +37,7 @@ public class PetParentServiceImpl implements PetParentService {
      * @param user Объект User, который нужно сохранить.
      */
     @Override
-    public void addParent(User user){
+    public void addUser(User user){
         logger.info("Was invoked create User method");
         repository.save(user);
     }
@@ -48,7 +48,7 @@ public class PetParentServiceImpl implements PetParentService {
      * @param id Идентификатор записи, которую нужно удалить.
      */
     @Override
-    public void deleteParent(long id){
+    public void deleteUser(long id){
         logger.info("Was invoked delete User method");
         repository.deleteById(id);
     }

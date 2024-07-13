@@ -12,6 +12,8 @@ import org.springframework.stereotype.Service;
 import pro.sky.petpartnersbot.entity.User;
 import pro.sky.petpartnersbot.service.HandleMessageService;
 
+import java.util.Objects;
+
 /**
  * Сервис для обработки сообщений от Telegram бота.
  * Этот класс отвечает за анализ и обработку входящих сообщений, а также за взаимодействие с пользователем через Telegram.
@@ -21,7 +23,7 @@ import pro.sky.petpartnersbot.service.HandleMessageService;
 public class HandleMessageServiceImpl implements HandleMessageService {
     private final Logger logger = LoggerFactory.getLogger(HandleMessageServiceImpl.class);
     private final TelegramBot bot;
-    private final PetParentServiceImpl parentService;
+    private final UserServiceImpl userService;
     private final MessageServiceImpl messageService;
 
     /**
@@ -55,16 +57,21 @@ public class HandleMessageServiceImpl implements HandleMessageService {
      * @param chatId     Идентификатор чата.
      */
     //Метод анализа сообщений
+    //Warning:(61, 88) Parameter 'update' is never used
     private void processText(String updateText, Long chatId, Keyboard keyboard, Update update) {
         logger.info("Was invoked switching message with text method");
         SendMessage message;
         SendResponse response;
+        User foundedUser = userService.findById(chatId);
         //Анализ выбранной кнопки меню или команды /start
         switch (updateText) {
             case "/start" -> {
                 //Если пользователь впревые использует чат, то добавляем его в БД
-                if (parentService.findByChatId(chatId) == null) {
-                    parentService.addParent(new User());
+                if (Objects.isNull(foundedUser)) {
+                    User newUser = User.builder()
+                            .chatId(chatId)
+                            .build();
+                    userService.addUser(newUser);
                     String messageText = messageService.findById("welcomeMessage").getText();
                     message = new SendMessage(chatId, messageText).replyMarkup(keyboard);
                     //Иначе перенаправляем к выбору приюта
@@ -106,7 +113,7 @@ public class HandleMessageServiceImpl implements HandleMessageService {
             }
             case "/delete" ->
                 //Если пользователь уже добавлен, то удаляю его. Это для теста
-                parentService.deleteParent(parentService.findByChatId(chatId).getChatId());
+                userService.deleteUser(chatId);
 
             default -> {
                 message = new SendMessage(chatId, "Выберите необходимый пункт в меню");

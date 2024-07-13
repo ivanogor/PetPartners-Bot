@@ -26,15 +26,15 @@ public class User {
     @Column(name = "chat_id")
     private Long chatId;
 
-    /**
-     * Контактные данные владельца питомца.
-     */
-    @Column(name = "contacts")
-    private String contacts;
-
-    /**
-     * Флаг, указывающий, является ли пользователь владельцем питомца.
-     */
-    @Column(name = "is_pets_parent")
-    private Boolean isPetsParent;
+//    /**
+//     * Контактные данные владельца питомца.
+//     */
+//    @Column(name = "contacts")
+//    private String contacts;
+//
+//    /**
+//     * Флаг, указывающий, является ли пользователь владельцем питомца.
+//     */
+//    @Column(name = "is_pets_parent")
+//    private Boolean isPetsParent;
 }
