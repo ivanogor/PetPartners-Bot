@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import pro.sky.petpartnersbot.entity.Message;
+import pro.sky.petpartnersbot.exception.MessageNotFoundException;
 import pro.sky.petpartnersbot.repository.MessageRepository;
 import pro.sky.petpartnersbot.service.MessageService;
 
@@ -25,8 +26,8 @@ public class MessageServiceImpl implements MessageService {
      * @return Объект Message, соответствующий заданному типу, или null, если такого сообщения нет.
      */
     @Override
-    public Message findByType(String type) {
+    public Message findById(String type) {
         logger.info("Was invoked find Message by Type method");
-        return repository.findByType(type);
+        return repository.findById(type).orElseThrow(() -> new MessageNotFoundException("Message not found"));
     }
 }

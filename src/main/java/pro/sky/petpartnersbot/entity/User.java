@@ -1,10 +1,13 @@
 package pro.sky.petpartnersbot.entity;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import jakarta.persistence.*;
+
+import java.time.LocalDateTime;
 
 /**
  * Сущность, представляющая питомца в базе данных.
@@ -13,22 +16,15 @@ import jakarta.persistence.*;
  */
 @Entity
 @Data
-@Table(name = "pet_parents")
+@Table(name = "users")
 @AllArgsConstructor
 @NoArgsConstructor
-public class PetParent {
-    /**
-     * Уникальный идентификатор питомца.
-     * Это поле генерируется автоматически и является первичным ключом в таблице.
-     */
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
-    private long id;
-
+@Builder
+public class User {
     /**
      * Идентификатор чата Telegram, связанный с владельцем питомца.
      */
+    @Id
     @Column(name = "chat_id")
     private Long chatId;
 
@@ -39,18 +35,6 @@ public class PetParent {
     private String userName;
 
     /**
-     * Имя владельца питомца.
-     */
-    @Column(name = "first_name")
-    private String firstName;
-
-    /**
-     * Фамилия владельца питомца.
-     */
-    @Column(name = "last_name")
-    private String lastName;
-
-    /**
      * Контактные данные владельца питомца.
      */
     @Column(name = "contacts")
@@ -59,12 +43,6 @@ public class PetParent {
     /**
      * Флаг, указывающий, является ли пользователь владельцем питомца.
      */
-    @Column(name = "is_pets_parent")
-    private Boolean isPetsParent;
-
-    /**
-     * Флаг, указывающий, нужно ли отправлять отчеты этому пользователю.
-     */
-    @Column(name = "need_report")
-    private Boolean needReport;
+    @Column(name = "adoption_date")
+    private LocalDateTime adoptionDate;
 }
