@@ -4,9 +4,9 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import pro.sky.petpartnersbot.entity.PetParent;
-import pro.sky.petpartnersbot.repository.PetParentRepository;
-import pro.sky.petpartnersbot.service.PetParentService;
+import pro.sky.petpartnersbot.entity.User;
+import pro.sky.petpartnersbot.repository.UsersRepository;
+import pro.sky.petpartnersbot.service.UserService;
 
 
 /**
@@ -15,9 +15,9 @@ import pro.sky.petpartnersbot.service.PetParentService;
  */
 @Service
 @RequiredArgsConstructor
-public class PetParentServiceImpl implements PetParentService {
-    private final Logger logger = LoggerFactory.getLogger(PetParentServiceImpl.class);
-    private final PetParentRepository repository;
+public class UserServiceImpl implements UserService {
+    private final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
+    private final UsersRepository repository;
 
     /**
      * Находит родителя питомца по заданному идентификатору чата.
@@ -26,7 +26,7 @@ public class PetParentServiceImpl implements PetParentService {
      * @return Объект PetParent, соответствующий заданному идентификатору чата, или null, если такой записи нет.
      */
     @Override
-    public PetParent findByChatId(Long chatId) {
+    public User findById(Long chatId) {
         logger.info("Was invoked find PetParent by ChatId method");
         return repository.findByChatId(chatId);
     }
@@ -34,12 +34,12 @@ public class PetParentServiceImpl implements PetParentService {
     /**
      * Создает новую запись о родителе питомца.
      *
-     * @param petParent Объект PetParent, который нужно сохранить.
+     * @param user Объект PetParent, который нужно сохранить.
      */
     @Override
-    public void addParent(PetParent petParent){
+    public void addUser(User user) {
         logger.info("Was invoked create PetParent method");
-        repository.save(petParent);
+        repository.save(user);
     }
 
     /**
@@ -48,7 +48,7 @@ public class PetParentServiceImpl implements PetParentService {
      * @param id Идентификатор записи, которую нужно удалить.
      */
     @Override
-    public void deleteParent(long id){
+    public void deleteUser(long id) {
         logger.info("Was invoked delete PetParent method");
         repository.deleteById(id);
     }

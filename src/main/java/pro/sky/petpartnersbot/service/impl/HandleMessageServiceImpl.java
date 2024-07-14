@@ -9,8 +9,10 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import pro.sky.petpartnersbot.entity.PetParent;
+import pro.sky.petpartnersbot.entity.User;
 import pro.sky.petpartnersbot.service.HandleMessageService;
+
+import java.util.Objects;
 
 /**
  * Сервис для обработки сообщений от Telegram бота.
@@ -22,7 +24,7 @@ public class HandleMessageServiceImpl implements HandleMessageService {
     private final Logger logger = LoggerFactory.getLogger(HandleMessageServiceImpl.class);
     private final TelegramBot bot;
     private final MessageServiceImpl messageService;
-    private final PetParentServiceImpl parentService;
+    private final UserServiceImpl userService;
 
     /**
      * Обрабатывает входящее сообщение от Telegram API.
@@ -44,9 +46,10 @@ public class HandleMessageServiceImpl implements HandleMessageService {
                     .addRow(new KeyboardButton("Позвать волонтера"))
                     .resizeKeyboard(true).oneTimeKeyboard(false);
             //Переход к анализу сообщений
-            switchText(updateText, chatId, keyboard, update);
+            processText(updateText, chatId, keyboard, update);
         }
     }
+
     /**
      * Анализирует текст сообщения и выполняет соответствующие действия.
      *
@@ -54,24 +57,26 @@ public class HandleMessageServiceImpl implements HandleMessageService {
      * @param chatId     Идентификатор чата.
      */
     //Метод анализа сообщений
-    private void switchText(String updateText, Long chatId, Keyboard keyboard, Update update) {
+    private void processText(String updateText, Long chatId, Keyboard keyboard, Update update) {
         logger.info("Was invoked swtching message with text method");
         SendMessage message;
         SendResponse response;
+        User foundedUser = userService.findById(chatId);
         //Анализ выбранной кнопки меню или команды /start
         switch (updateText) {
-            case ("/start"):
+            case "/start" -> {
                 //Если пользователь впревые использует чат, то добавляем его в БД
-                if (parentService.findByChatId(chatId) == null) {
-                    parentService.addParent(new PetParent(1, chatId, update.message().chat().username(),
-                            update.message().chat().firstName(), update.message().chat().lastName(),
-                            "", false, false));
-                    String messageText = messageService.findByType("welcomeMessage").getText();
+                if (Objects.isNull(foundedUser)) {
+                    User newUser = User.builder()
+                            .chatId(chatId)
+                            .build();
+                    userService.addUser(newUser);
+                    String messageText = messageService.findById("welcomeMessage").getText();
                     message = new SendMessage(chatId, messageText).replyMarkup(keyboard);
                     response = bot.execute(message);
                     //Проверка выполнения отправки сообщения
                     checkResponce(response);
-                //Иначе перенаправляем к выбору приюта
+                    //Иначе перенаправляем к выбору приюта
                 } else {
                     message = new SendMessage(chatId,
                             "Выбор приюта <функционал в разработке>").replyMarkup(keyboard);
@@ -79,44 +84,45 @@ public class HandleMessageServiceImpl implements HandleMessageService {
                     //Проверка выполнения отправки сообщения
                     checkResponce(response);
                 }
-                break;
-            case ("Узнать информацию о приюте"):
+            }
+            case "Узнать информацию о приюте" -> {
                 //Добавить инфу из приюта из сущности***********
                 message = new SendMessage(chatId, "Информация о приюте <функционал в разработке>");
                 response = bot.execute(message);
                 //Проверка выполнения отправки сообщения
                 checkResponce(response);
-                break;
-            case ("Как взять животное из приюта?"):
+            }
+            case "Как взять животное из приюта?" -> {
                 //Добавить инфу из приюта из сущности***********
                 message = new SendMessage(chatId, "Как взять животное из приюта <функционал в разработке>");
                 response = bot.execute(message);
                 //Проверка выполнения отправки сообщения
                 checkResponce(response);
-                break;
-            case ("Прислать отчет о питомце"):
+            }
+            case "Прислать отчет о питомце" -> {
                 //Добавить инфу в отчет в сущность***********
                 message = new SendMessage(chatId, "Прислать отчет о питомце <функционал в разработке>");
                 response = bot.execute(message);
                 //Проверка выполнения отправки сообщения
                 checkResponce(response);
-                break;
-            case ("Позвать волонтера"):
+            }
+            case "Позвать волонтера" -> {
                 //Добавить инфу из приюта из сущности***********
                 message = new SendMessage(chatId, "Позвать волонтера <функционал в разработке>");
                 response = bot.execute(message);
                 //Проверка выполнения отправки сообщения
                 checkResponce(response);
-                break;
-            case ("/delete"):
+            }
+            case "/delete" -> {
                 //Если пользователь уже добавлен, то удаляю его. Это для теста
-                parentService.deleteParent(parentService.findByChatId(chatId).getId());
-                break;
-            default:
+                userService.deleteUser(chatId);
+            }
+            default -> {
                 message = new SendMessage(chatId, "Выберите необходимый пункт в меню");
                 response = bot.execute(message);
                 //Проверка выполнения отправки сообщения
                 checkResponce(response);
+            }
         }
     }
 
