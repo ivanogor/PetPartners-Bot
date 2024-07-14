@@ -69,6 +69,7 @@ public class HandleMessageServiceImpl implements HandleMessageService {
                 if (Objects.isNull(foundedUser)) {
                     User newUser = User.builder()
                             .chatId(chatId)
+                            .userName((update.message().chat().username()))
                             .build();
                     userService.addUser(newUser);
                     String messageText = messageService.findById("welcomeMessage").getText();
