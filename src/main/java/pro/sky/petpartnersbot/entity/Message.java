@@ -17,19 +17,10 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class Message {
-    /**
-     * Тип сообщения.
-     * Это поле хранит информацию о типе сообщения, которая может использоваться для различных целей,
-     * например, для фильтрации или обработки сообщений.
-     */
     @Id
     @Column(name = "type")
     private String type;
 
-    /**
-     * Текст сообщения.
-     * Это поле хранит содержимое сообщения.
-     */
     @Column(name = "text")
     private String text;
 }
