@@ -43,6 +43,7 @@ create table messages(
     text text null
 );
 
+
 insert into messages(type, text) values ('welcomeMessage', 'Привет. Я чат-бот для взаимодействия с приютами для собачек.' ||
                                                            ' С моей помощью ты сожешь приютить собаку, а я подскажу как ' ||
                                                            'это сделать');

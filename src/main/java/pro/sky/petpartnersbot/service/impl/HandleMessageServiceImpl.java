@@ -23,6 +23,7 @@ import java.util.Objects;
 public class HandleMessageServiceImpl implements HandleMessageService {
     private final Logger logger = LoggerFactory.getLogger(HandleMessageServiceImpl.class);
     private final TelegramBot bot;
+    private final UserServiceImpl userService;
     private final MessageServiceImpl messageService;
     private final UserServiceImpl userService;
 
@@ -74,17 +75,14 @@ public class HandleMessageServiceImpl implements HandleMessageService {
                     userService.addUser(newUser);
                     String messageText = messageService.findById("welcomeMessage").getText();
                     message = new SendMessage(chatId, messageText).replyMarkup(keyboard);
-                    response = bot.execute(message);
-                    //Проверка выполнения отправки сообщения
-                    checkResponce(response);
-                    //Иначе перенаправляем к выбору приюта
                 } else {
                     message = new SendMessage(chatId,
                             "Выбор приюта <функционал в разработке>").replyMarkup(keyboard);
-                    response = bot.execute(message);
-                    //Проверка выполнения отправки сообщения
-                    checkResponce(response);
                 }
+
+                //Проверка выполнения отправки сообщения
+                response = bot.execute(message);
+                checkResponse(response);
             }
             case "Узнать информацию о приюте" -> {
                 //Добавить инфу из приюта из сущности***********
@@ -100,11 +98,12 @@ public class HandleMessageServiceImpl implements HandleMessageService {
                 //Проверка выполнения отправки сообщения
                 checkResponce(response);
             }
-            case "Прислать отчет о питомце" -> {
+            case ("Прислать отчет о питомце") -> {
                 //Добавить инфу в отчет в сущность***********
                 message = new SendMessage(chatId, "Прислать отчет о питомце <функционал в разработке>");
                 response = bot.execute(message);
                 //Проверка выполнения отправки сообщения
+
                 checkResponce(response);
             }
             case "Позвать волонтера" -> {
@@ -112,25 +111,27 @@ public class HandleMessageServiceImpl implements HandleMessageService {
                 message = new SendMessage(chatId, "Позвать волонтера <функционал в разработке>");
                 response = bot.execute(message);
                 //Проверка выполнения отправки сообщения
+
                 checkResponce(response);
             }
             case "/delete" -> {
                 //Если пользователь уже добавлен, то удаляю его. Это для теста
                 userService.deleteUser(chatId);
             }
+
             default -> {
                 message = new SendMessage(chatId, "Выберите необходимый пункт в меню");
                 response = bot.execute(message);
                 //Проверка выполнения отправки сообщения
-                checkResponce(response);
+                checkResponse(response);
             }
         }
     }
 
     //Метод проверки отправки сообщения
-    private void checkResponce(SendResponse response) {
+    private void checkResponse(SendResponse response) {
         if (!response.isOk()) {
-            logger.error("Response isn't correct. Error code: " + response.errorCode());
+            logger.error("Response isn't correct. Error code: {}", response.errorCode());
         }
     }
 }
