@@ -26,6 +26,7 @@ public class HandleMessageServiceImpl implements HandleMessageService {
     private final UserServiceImpl userService;
     private final MessageServiceImpl messageService;
     private final UserServiceImpl userService;
+    private final AnimalShelterPropsServiceImpl animalShelterPropsService;
 
     /**
      * Обрабатывает входящее сообщение от Telegram API.
@@ -107,8 +108,12 @@ public class HandleMessageServiceImpl implements HandleMessageService {
                 checkResponce(response);
             }
             case "Позвать волонтера" -> {
-                //Добавить инфу из приюта из сущности***********
-                message = new SendMessage(chatId, "Позвать волонтера <функционал в разработке>");
+                //Пока отправляю жесткий ид приюта по хорошему нужно исходя из выбора юзера
+                bot.execute(new SendMessage(animalShelterPropsService.getVolunteerChat(1L)
+                        ,"Пользователь \ntg://openmessage?user_id="+chatId+"\nhttps://web.telegram.org/a/#"+
+                        chatId+"\nпросит связаться с волонтером"));
+
+                message = new SendMessage(chatId, "Запрос отправлен. С вами свяжутся в течении 10-15 минут");
                 response = bot.execute(message);
                 //Проверка выполнения отправки сообщения
 
