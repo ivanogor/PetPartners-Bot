@@ -7,6 +7,8 @@ import lombok.NoArgsConstructor;
 
 import jakarta.persistence.*;
 
+import java.time.LocalDateTime;
+
 /**
  * Сущность, представляющая питомца в базе данных.
  * Этот класс отображает таблицу "pet_parents" в базе данных и содержит информацию о питомце,
@@ -26,15 +28,21 @@ public class User {
     @Column(name = "chat_id")
     private Long chatId;
 
-//    /**
-//     * Контактные данные владельца питомца.
-//     */
-//    @Column(name = "contacts")
-//    private String contacts;
-//
-//    /**
-//     * Флаг, указывающий, является ли пользователь владельцем питомца.
-//     */
-//    @Column(name = "is_pets_parent")
-//    private Boolean isPetsParent;
+    /**
+     * Имя пользователя (username) владельца питомца в Telegram.
+     */
+    @Column(name = "user_name")
+    private String userName;
+
+    /**
+     * Контактные данные владельца питомца.
+     */
+    @Column(name = "contacts")
+    private String contacts;
+
+    /**
+     * Флаг, указывающий, является ли пользователь владельцем питомца.
+     */
+    @Column(name = "adoption_date")
+    private LocalDateTime adoptionDate;
 }

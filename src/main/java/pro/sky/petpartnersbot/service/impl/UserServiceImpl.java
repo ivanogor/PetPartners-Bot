@@ -5,11 +5,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import pro.sky.petpartnersbot.entity.User;
-import pro.sky.petpartnersbot.repository.UserRepository;
+import pro.sky.petpartnersbot.repository.UsersRepository;
 import pro.sky.petpartnersbot.service.UserService;
 
 
-/**
+/*
  * Сервис для управления объектами User.
  * Этот сервис предоставляет методы для поиска, создания и удаления записей о родителях питомцев.
  */
@@ -17,28 +17,29 @@ import pro.sky.petpartnersbot.service.UserService;
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
     private final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
-    private final UserRepository repository;
+    private final UsersRepository repository;
+
 
     /**
      * Находит родителя питомца по заданному идентификатору чата.
      *
      * @param chatId Идентификатор чата, по которому ищется родитель питомца.
-     * @return Объект User, соответствующий заданному идентификатору чата, или null, если такой записи нет.
+     * @return Объект PetParent, соответствующий заданному идентификатору чата, или null, если такой записи нет.
      */
     @Override
     public User findById(Long chatId) {
-        logger.info("Was invoked find User by ChatId method");
-        return repository.findById(chatId).orElse(null);
+        logger.info("Was invoked find PetParent by ChatId method");
+        return repository.findByChatId(chatId);
     }
 
     /**
      * Создает новую запись о родителе питомца.
      *
-     * @param user Объект User, который нужно сохранить.
+     * @param user Объект PetParent, который нужно сохранить.
      */
     @Override
-    public void addUser(User user){
-        logger.info("Was invoked create User method");
+    public void addUser(User user) {
+        logger.info("Was invoked create PetParent method");
         repository.save(user);
     }
 
@@ -48,8 +49,8 @@ public class UserServiceImpl implements UserService {
      * @param id Идентификатор записи, которую нужно удалить.
      */
     @Override
-    public void deleteUser(long id){
-        logger.info("Was invoked delete User method");
+    public void deleteUser(long id) {
+        logger.info("Was invoked delete PetParent method");
         repository.deleteById(id);
     }
 }

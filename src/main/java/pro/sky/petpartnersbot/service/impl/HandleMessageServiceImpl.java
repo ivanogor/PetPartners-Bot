@@ -25,6 +25,7 @@ public class HandleMessageServiceImpl implements HandleMessageService {
     private final TelegramBot bot;
     private final UserServiceImpl userService;
     private final MessageServiceImpl messageService;
+    private final UserServiceImpl userService;
 
     /**
      * Обрабатывает входящее сообщение от Telegram API.
@@ -57,9 +58,8 @@ public class HandleMessageServiceImpl implements HandleMessageService {
      * @param chatId     Идентификатор чата.
      */
     //Метод анализа сообщений
-    //Warning:(61, 88) Parameter 'update' is never used
     private void processText(String updateText, Long chatId, Keyboard keyboard, Update update) {
-        logger.info("Was invoked switching message with text method");
+        logger.info("Was invoked swtching message with text method");
         SendMessage message;
         SendResponse response;
         User foundedUser = userService.findById(chatId);
@@ -70,15 +70,16 @@ public class HandleMessageServiceImpl implements HandleMessageService {
                 if (Objects.isNull(foundedUser)) {
                     User newUser = User.builder()
                             .chatId(chatId)
+                            .userName((update.message().chat().username()))
                             .build();
                     userService.addUser(newUser);
                     String messageText = messageService.findById("welcomeMessage").getText();
                     message = new SendMessage(chatId, messageText).replyMarkup(keyboard);
-                    //Иначе перенаправляем к выбору приюта
                 } else {
                     message = new SendMessage(chatId,
                             "Выбор приюта <функционал в разработке>").replyMarkup(keyboard);
                 }
+
                 //Проверка выполнения отправки сообщения
                 response = bot.execute(message);
                 checkResponse(response);
@@ -88,32 +89,35 @@ public class HandleMessageServiceImpl implements HandleMessageService {
                 message = new SendMessage(chatId, "Информация о приюте <функционал в разработке>");
                 response = bot.execute(message);
                 //Проверка выполнения отправки сообщения
-                checkResponse(response);
+                checkResponce(response);
             }
             case "Как взять животное из приюта?" -> {
                 //Добавить инфу из приюта из сущности***********
                 message = new SendMessage(chatId, "Как взять животное из приюта <функционал в разработке>");
                 response = bot.execute(message);
                 //Проверка выполнения отправки сообщения
-                checkResponse(response);
+                checkResponce(response);
             }
             case ("Прислать отчет о питомце") -> {
                 //Добавить инфу в отчет в сущность***********
                 message = new SendMessage(chatId, "Прислать отчет о питомце <функционал в разработке>");
                 response = bot.execute(message);
                 //Проверка выполнения отправки сообщения
-                checkResponse(response);
+
+                checkResponce(response);
             }
             case "Позвать волонтера" -> {
                 //Добавить инфу из приюта из сущности***********
                 message = new SendMessage(chatId, "Позвать волонтера <функционал в разработке>");
                 response = bot.execute(message);
                 //Проверка выполнения отправки сообщения
-                checkResponse(response);
+
+                checkResponce(response);
             }
-            case "/delete" ->
+            case "/delete" -> {
                 //Если пользователь уже добавлен, то удаляю его. Это для теста
                 userService.deleteUser(chatId);
+            }
 
             default -> {
                 message = new SendMessage(chatId, "Выберите необходимый пункт в меню");

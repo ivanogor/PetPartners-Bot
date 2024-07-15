@@ -14,8 +14,8 @@ import lombok.NoArgsConstructor;
 @Entity
 @Table(name = "messages")
 @NoArgsConstructor
-@Builder
 @AllArgsConstructor
+@Builder
 public class Message {
     /**
      * Тип сообщения.
