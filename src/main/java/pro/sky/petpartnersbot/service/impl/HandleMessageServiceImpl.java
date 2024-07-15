@@ -2,7 +2,6 @@ package pro.sky.petpartnersbot.service.impl;
 
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.model.Update;
-import com.pengrad.telegrambot.model.request.*;
 import com.pengrad.telegrambot.request.SendMessage;
 import com.pengrad.telegrambot.response.SendResponse;
 import lombok.RequiredArgsConstructor;
@@ -11,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import pro.sky.petpartnersbot.entity.User;
 import pro.sky.petpartnersbot.service.HandleMessageService;
+import pro.sky.petpartnersbot.service.utils.KeyboardsForAnswer;
 
 import java.util.Objects;
 
@@ -25,7 +25,7 @@ public class HandleMessageServiceImpl implements HandleMessageService {
     private final TelegramBot bot;
     private final UserServiceImpl userService;
     private final MessageServiceImpl messageService;
-    private final UserServiceImpl userService;
+    private boolean isDog;
 
     /**
      * Обрабатывает входящее сообщение от Telegram API.
@@ -40,14 +40,8 @@ public class HandleMessageServiceImpl implements HandleMessageService {
             logger.info("Handling message");
             String updateText = update.message().text();
             Long chatId = update.message().chat().id();
-            //Кнопки меню
-            Keyboard keyboard = new ReplyKeyboardMarkup(new KeyboardButton("Узнать информацию о приюте"))
-                    .addRow(new KeyboardButton("Как взять животное из приюта?"))
-                    .addRow(new KeyboardButton("Прислать отчет о питомце"))
-                    .addRow(new KeyboardButton("Позвать волонтера"))
-                    .resizeKeyboard(true).oneTimeKeyboard(false);
             //Переход к анализу сообщений
-            processText(updateText, chatId, keyboard, update);
+            processText(updateText, chatId, update);
         }
     }
 
@@ -58,8 +52,8 @@ public class HandleMessageServiceImpl implements HandleMessageService {
      * @param chatId     Идентификатор чата.
      */
     //Метод анализа сообщений
-    private void processText(String updateText, Long chatId, Keyboard keyboard, Update update) {
-        logger.info("Was invoked swtching message with text method");
+    private void processText(String updateText, Long chatId, Update update) {
+        logger.info("Was invoked switching message with text method");
         SendMessage message;
         SendResponse response;
         User foundedUser = userService.findById(chatId);
@@ -74,37 +68,49 @@ public class HandleMessageServiceImpl implements HandleMessageService {
                             .build();
                     userService.addUser(newUser);
                     String messageText = messageService.findById("welcomeMessage").getText();
-                    message = new SendMessage(chatId, messageText).replyMarkup(keyboard);
+                    message = new SendMessage(chatId, messageText).replyMarkup(KeyboardsForAnswer.START_KEYBOARD);
                 } else {
-                    message = new SendMessage(chatId,
-                            "Выбор приюта <функционал в разработке>").replyMarkup(keyboard);
+                    message = new SendMessage(chatId, "Выберите приют").replyMarkup(KeyboardsForAnswer.START_KEYBOARD);
                 }
-
                 //Проверка выполнения отправки сообщения
                 response = bot.execute(message);
                 checkResponse(response);
             }
-            case "Узнать информацию о приюте" -> {
-                //Добавить инфу из приюта из сущности***********
-                message = new SendMessage(chatId, "Информация о приюте <функционал в разработке>");
+            case "Приют для кошек" -> {
+                isDog = false;
+                message = new SendMessage(chatId, "Приюты для собак").replyMarkup(KeyboardsForAnswer.MAIN_KEYBOARD);
                 response = bot.execute(message);
                 //Проверка выполнения отправки сообщения
-                checkResponce(response);
+                checkResponse(response);
+            }
+            case "Приют для собак" -> {
+                isDog = true;
+                message = new SendMessage(chatId, "Приюты для собак").replyMarkup(KeyboardsForAnswer.MAIN_KEYBOARD);
+                response = bot.execute(message);
+                //Проверка выполнения отправки сообщения
+                checkResponse(response);
             }
             case "Как взять животное из приюта?" -> {
                 //Добавить инфу из приюта из сущности***********
-                message = new SendMessage(chatId, "Как взять животное из приюта <функционал в разработке>");
+                message = new SendMessage(chatId, "Тест1");
                 response = bot.execute(message);
                 //Проверка выполнения отправки сообщения
-                checkResponce(response);
+                checkResponse(response);
             }
-            case ("Прислать отчет о питомце") -> {
+            case "Узнать информацию о приюте" -> {
+                //Добавить инфу из приюта из сущности***********
+                message = new SendMessage(chatId, "Тест2");
+                response = bot.execute(message);
+                //Проверка выполнения отправки сообщения
+                checkResponse(response);
+            }
+            case "Прислать отчет о питомце" -> {
                 //Добавить инфу в отчет в сущность***********
-                message = new SendMessage(chatId, "Прислать отчет о питомце <функционал в разработке>");
+                message = new SendMessage(chatId, "Тест3");
                 response = bot.execute(message);
                 //Проверка выполнения отправки сообщения
 
-                checkResponce(response);
+                checkResponse(response);
             }
             case "Позвать волонтера" -> {
                 //Добавить инфу из приюта из сущности***********
@@ -112,12 +118,11 @@ public class HandleMessageServiceImpl implements HandleMessageService {
                 response = bot.execute(message);
                 //Проверка выполнения отправки сообщения
 
-                checkResponce(response);
+                checkResponse(response);
             }
-            case "/delete" -> {
+            case "/delete" ->
                 //Если пользователь уже добавлен, то удаляю его. Это для теста
-                userService.deleteUser(chatId);
-            }
+                    userService.deleteUser(chatId);
 
             default -> {
                 message = new SendMessage(chatId, "Выберите необходимый пункт в меню");
@@ -134,4 +139,6 @@ public class HandleMessageServiceImpl implements HandleMessageService {
             logger.error("Response isn't correct. Error code: {}", response.errorCode());
         }
     }
+
+
 }
