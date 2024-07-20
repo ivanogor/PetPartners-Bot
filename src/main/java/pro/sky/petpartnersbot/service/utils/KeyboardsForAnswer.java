@@ -10,18 +10,18 @@ public class KeyboardsForAnswer {
             .resizeKeyboard(true)
             .oneTimeKeyboard(false);
 
-    public final static Keyboard MAIN_KEYBOARD = new ReplyKeyboardMarkup(new KeyboardButton("Узнать информацию о приюте"))
-            .addRow(new KeyboardButton("Информация о приюте"))
+    public final static Keyboard MAIN_KEYBOARD = new ReplyKeyboardMarkup(new KeyboardButton("Информация о приюте"))
             .addRow(new KeyboardButton("Прислать отчет о питомце"))
             .addRow(new KeyboardButton("Позвать волонтера"))
             .resizeKeyboard(true)
             .oneTimeKeyboard(false);
 
-    public final static Keyboard SHELTER_KEYBOARD = new ReplyKeyboardMarkup(new KeyboardButton("Узнать информацию о приюте"))
+    public final static Keyboard SHELTER_KEYBOARD = new ReplyKeyboardMarkup(new KeyboardButton("Описание приюта"))
             .addRow(new KeyboardButton("Расписание работы"))
             .addRow(new KeyboardButton("Схема проезда"))
             .addRow(new KeyboardButton("Контактные данные охраны"))
             .addRow(new KeyboardButton("Рекомендации техники безопасности"))
+            .addRow(new KeyboardButton("Выбрать другой приют"))
             .addRow(new KeyboardButton("Позвать волонтера"))
             .resizeKeyboard(true)
             .oneTimeKeyboard(false);

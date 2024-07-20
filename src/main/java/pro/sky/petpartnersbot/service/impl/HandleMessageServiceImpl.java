@@ -79,14 +79,14 @@ public class HandleMessageServiceImpl implements HandleMessageService {
             }
             case "Приют для кошек" -> {
                 isDog = false;
-                message = new SendMessage(chatId, "Приюты для кошек").replyMarkup(KeyboardsForAnswer.MAIN_KEYBOARD);
+                message = new SendMessage(chatId, "Приют для кошек").replyMarkup(KeyboardsForAnswer.MAIN_KEYBOARD);
                 response = bot.execute(message);
                 //Проверка выполнения отправки сообщения
                 checkResponse(response);
             }
             case "Приют для собак" -> {
                 isDog = true;
-                message = new SendMessage(chatId, "Приюты для собак").replyMarkup(KeyboardsForAnswer.MAIN_KEYBOARD);
+                message = new SendMessage(chatId, "Приют для собак").replyMarkup(KeyboardsForAnswer.MAIN_KEYBOARD);
                 response = bot.execute(message);
                 //Проверка выполнения отправки сообщения
                 checkResponse(response);
@@ -109,6 +109,32 @@ public class HandleMessageServiceImpl implements HandleMessageService {
                 response = bot.execute(message);
                 //Проверка выполнения отправки сообщения
 
+                checkResponse(response);
+            }
+            case "Расписание работы" -> {
+                if (isDog){
+                    message = new SendMessage(chatId, messageService.findById("scheduleDogShelter").getText()).replyMarkup(KeyboardsForAnswer.SHELTER_KEYBOARD);
+                }
+                else {
+                    message = new SendMessage(chatId, messageService.findById("scheduleCatShelter").getText()).replyMarkup(KeyboardsForAnswer.SHELTER_KEYBOARD);
+                }
+                response = bot.execute(message);
+                checkResponse(response);
+            }
+
+            case "Описание приюта" -> {
+                if (isDog){
+                    message = new SendMessage(chatId, messageService.findById("infoDogShelter").getText()).replyMarkup(KeyboardsForAnswer.SHELTER_KEYBOARD);
+                }
+                else {
+                    message = new SendMessage(chatId, messageService.findById("infoCatShelter").getText()).replyMarkup(KeyboardsForAnswer.SHELTER_KEYBOARD);
+                }
+                response = bot.execute(message);
+                checkResponse(response);
+            }
+            case "Выбрать другой приют" -> {
+                message = new SendMessage(chatId, "Выберите приют").replyMarkup(KeyboardsForAnswer.START_KEYBOARD);
+                response = bot.execute(message);
                 checkResponse(response);
             }
             case "Позвать волонтера" -> {
