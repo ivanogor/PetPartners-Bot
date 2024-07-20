@@ -79,7 +79,7 @@ public class HandleMessageServiceImpl implements HandleMessageService {
             }
             case "Приют для кошек" -> {
                 isDog = false;
-                message = new SendMessage(chatId, "Приюты для собак").replyMarkup(KeyboardsForAnswer.MAIN_KEYBOARD);
+                message = new SendMessage(chatId, "Приюты для кошек").replyMarkup(KeyboardsForAnswer.MAIN_KEYBOARD);
                 response = bot.execute(message);
                 //Проверка выполнения отправки сообщения
                 checkResponse(response);
@@ -98,11 +98,9 @@ public class HandleMessageServiceImpl implements HandleMessageService {
                 //Проверка выполнения отправки сообщения
                 checkResponse(response);
             }
-            case "Узнать информацию о приюте" -> {
-                //Добавить инфу из приюта из сущности***********
-                message = new SendMessage(chatId, "Тест2");
+            case "Информация о приюте" -> {
+                message = new SendMessage(chatId, "Выберите меню:").replyMarkup(KeyboardsForAnswer.SHELTER_KEYBOARD);
                 response = bot.execute(message);
-                //Проверка выполнения отправки сообщения
                 checkResponse(response);
             }
             case "Прислать отчет о питомце" -> {
@@ -130,7 +128,7 @@ public class HandleMessageServiceImpl implements HandleMessageService {
                     userService.deleteUser(chatId);
 
             default -> {
-                message = new SendMessage(chatId, "Выберите необходимый пункт в меню");
+                message = new SendMessage(chatId, "Вы можете позвать волонтера").replyMarkup(KeyboardsForAnswer.SUPPORT_KEYBOARD);
                 response = bot.execute(message);
                 //Проверка выполнения отправки сообщения
                 checkResponse(response);
