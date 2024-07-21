@@ -135,3 +135,20 @@ update messages
 set text = 'Привет! Я чат-бот для взаимодействия с приютами. С моей помощью ты сможешь приютить собаку или кошку, и я ' ||
            'подскажу, как это сделать.'
 where type = 'welcomeMessage';
+-- changeset ivanogor:step8_add_schedule_message_for_shelters
+insert into messages(type, text)
+values ('scheduleDogShelter', 'Расписание работы:
+Приют открыт для посетителей с 9:00 до 18:00 с понедельника по субботу. Воскресенье — день отдыха.');
+
+insert into messages(type, text)
+values ('scheduleCatShelter', 'Расписание работы:
+Приют открыт для посетителей с 10:00 до 17:00 с понедельника по субботу. Воскресенье — день отдыха.');
+
+-- changeset ivanogor:step9_add_shelters_info
+insert into messages(type, text)
+values ('infoDogShelter', 'Собачий приют в Алматы — это место, где бездомные и брошенные собаки находят ' ||
+                          'временное убежище и заботу, ожидая своего шанса найти новых, любящих хозяев.');
+
+insert into messages(type, text)
+values ('infoCatShelter', 'Кошачий приют в Алматы — это место, где каждая кошка находит заботу и внимание,' ||
+                          ' ожидая своего шанса найти новый дом.');
