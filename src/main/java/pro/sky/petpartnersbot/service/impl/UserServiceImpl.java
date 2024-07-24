@@ -9,8 +9,8 @@ import pro.sky.petpartnersbot.repository.UsersRepository;
 import pro.sky.petpartnersbot.service.UserService;
 
 
-/**
- * Сервис для управления объектами PetParent.
+/*
+ * Сервис для управления объектами User.
  * Этот сервис предоставляет методы для поиска, создания и удаления записей о родителях питомцев.
  */
 @Service
@@ -18,6 +18,7 @@ import pro.sky.petpartnersbot.service.UserService;
 public class UserServiceImpl implements UserService {
     private final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
     private final UsersRepository repository;
+
 
     /**
      * Находит родителя питомца по заданному идентификатору чата.
