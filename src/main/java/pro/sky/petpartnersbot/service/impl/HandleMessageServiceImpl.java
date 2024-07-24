@@ -14,6 +14,12 @@ import pro.sky.petpartnersbot.service.utils.KeyboardsForAnswer;
 
 import java.util.Objects;
 
+import static com.pengrad.telegrambot.model.request.ParseMode.HTML;
+
+/**
+ * Сервис для обработки сообщений от Telegram бота.
+ * Этот класс отвечает за анализ и обработку входящих сообщений, а также за взаимодействие с пользователем через Telegram.
+ */
 @Service
 @RequiredArgsConstructor
 public class HandleMessageServiceImpl implements HandleMessageService {
@@ -123,8 +129,8 @@ public class HandleMessageServiceImpl implements HandleMessageService {
             case "Позвать волонтера" -> {
                 //Пока отправляю жесткий ид приюта по хорошему нужно исходя из выбора юзера
                 bot.execute(new SendMessage(animalShelterPropsService.getVolunteerChat(1L)
-                        ,"Пользователь \ntg://openmessage?user_id="+chatId+"\nhttps://web.telegram.org/a/#"+
-                        chatId+"\nпросит связаться с волонтером"));
+                        ,"Пользователь \n<a href=\"tg://user?id="+chatId+"\">"+
+                        update.message().chat().firstName()+"</a>\nпросит связаться с волонтером").parseMode(HTML));
 
                 message = new SendMessage(chatId, "Запрос отправлен. С вами свяжутся в течении 10-15 минут");
                 response = bot.execute(message);
