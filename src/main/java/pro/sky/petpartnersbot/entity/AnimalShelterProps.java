@@ -8,6 +8,9 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
+/**
+ * Сущность, представляющая свойства приютов для животных. Этот класс отображается на таблицу "animal_shelters_props" в базе данных.
+ */
 @Entity
 @Data
 @Table(name = "animal_shelters_props")
@@ -15,40 +18,22 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Builder
 public class AnimalShelterProps {
-    /**
-     * id параметра питомника
-     */
     @Id
     @Column(name = "animal_shelters_props_id")
     private Long animalSheltersPropsId;
 
-    /**
-     * ФК на справочник параметров
-     */
     @Column(name = "prop_id")
     private Long propId;
 
-    /**
-     * Значение параметра
-     */
     @Column(name = "prop_val")
     private String propVal;
 
-    /**
-     * ФК на питомники
-     */
     @Column(name = "shelter_id")
     private Long shelterId;
 
-    /**
-     * Дата с
-     */
     @Column(name = "date_from")
     private LocalDateTime dateFrom;
 
-    /**
-     * Дата до (добавил для историзма, но в целом сие не обязательно)
-     */
     @Column(name = "date_to")
     private LocalDateTime dateTo;
 }

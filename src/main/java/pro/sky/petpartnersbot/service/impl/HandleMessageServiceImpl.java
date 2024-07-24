@@ -30,13 +30,6 @@ public class HandleMessageServiceImpl implements HandleMessageService {
     private final AnimalShelterPropsServiceImpl animalShelterPropsService;
     private boolean isDog;
 
-    /**
-     * Обрабатывает входящее сообщение от Telegram API.
-     * Если пользователь впервые использует чат, добавляет его в базу данных и переходит к анализу сообщений.
-     * Иначе перенаправляет пользователя к выбору приюта.
-     *
-     * @param update Входящее обновление от Telegram API.
-     */
     @Override
     public void handleMessage(Update update) {
         if (update.message() != null) {
@@ -48,13 +41,7 @@ public class HandleMessageServiceImpl implements HandleMessageService {
         }
     }
 
-    /**
-     * Анализирует текст сообщения и выполняет соответствующие действия.
-     *
-     * @param updateText Текст сообщения.
-     * @param chatId     Идентификатор чата.
-     */
-    //Метод анализа сообщений
+
     private void processText(String updateText, Long chatId, Update update) {
         logger.info("Was invoked switching message with text method");
         SendMessage message;
@@ -164,7 +151,6 @@ public class HandleMessageServiceImpl implements HandleMessageService {
         }
     }
 
-    //Метод проверки отправки сообщения
     private void checkResponse(SendResponse response) {
         if (!response.isOk()) {
             logger.error("Response isn't correct. Error code: {}", response.errorCode());
