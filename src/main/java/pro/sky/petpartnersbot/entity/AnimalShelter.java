@@ -11,6 +11,9 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
+/**
+ * Сущность, представляющая приют для животных. Этот класс отображается на таблицу "animal_shelters" в базе данных.
+ */
 @Entity
 @Data
 @Table(name = "animal_shelters")
@@ -18,22 +21,13 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Builder
 public class AnimalShelter {
-    /**
-     * id Питомника
-     */
     @Id
     @Column(name = "shelter_id")
     private Long shelterId;
 
-    /**
-     * Название питомника
-     */
     @Column(name = "name")
     private String name;
 
-    /**
-     * Дата добавления записи
-     */
     @Column(name = "time_stamp")
     private LocalDateTime timeStamp;
 }
