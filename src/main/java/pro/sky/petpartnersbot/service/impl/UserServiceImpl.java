@@ -9,6 +9,8 @@ import pro.sky.petpartnersbot.exception.UserNotFoundException;
 import pro.sky.petpartnersbot.repository.UsersRepository;
 import pro.sky.petpartnersbot.service.UserService;
 
+import java.util.Objects;
+
 
 @Service
 @RequiredArgsConstructor
@@ -24,14 +26,20 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void addUser(User user) {
+    public User addUser(User user) {
         logger.info("Was invoked create PetParent method");
-        repository.save(user);
+        return repository.save(user);
     }
 
     @Override
     public void deleteUser(long id) {
         logger.info("Was invoked delete PetParent method");
-        repository.deleteById(id);
+        User obtainedUser = repository.findById(id).orElse(null);
+        if(Objects.isNull(obtainedUser)){
+            throw new UserNotFoundException();
+        }
+        else{
+            repository.deleteById(id);
+        }
     }
 }
