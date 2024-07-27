@@ -55,7 +55,7 @@ public class HandleMessageServiceImpl implements HandleMessageService {
      * @param chatId     Идентификатор чата.
      */
     //Метод анализа сообщений
-    public void processText(String updateText, Long chatId, Update update) {
+    private void processText(String updateText, Long chatId, Update update) {
         logger.info("Was invoked switching message with text method");
         SendMessage message;
         SendResponse response;
@@ -77,97 +77,91 @@ public class HandleMessageServiceImpl implements HandleMessageService {
                 }
                 //Проверка выполнения отправки сообщения
                 response = bot.execute(message);
-                //checkResponse(response);
+                checkResponse(response);
             }
             case "Приют для кошек" -> {
                 isDog = false;
                 message = new SendMessage(chatId, "Приют для кошек").replyMarkup(KeyboardsForAnswer.MAIN_KEYBOARD);
                 response = bot.execute(message);
                 //Проверка выполнения отправки сообщения
-                //checkResponse(response);
+                checkResponse(response);
             }
             case "Приют для собак" -> {
                 isDog = true;
                 message = new SendMessage(chatId, "Приют для собак").replyMarkup(KeyboardsForAnswer.MAIN_KEYBOARD);
                 response = bot.execute(message);
                 //Проверка выполнения отправки сообщения
-                //checkResponse(response);
+                checkResponse(response);
             }
             case "Как взять животное из приюта?" -> {
                 //Добавить инфу из приюта из сущности***********
                 message = new SendMessage(chatId, "Тест1");
                 response = bot.execute(message);
                 //Проверка выполнения отправки сообщения
-                //checkResponse(response);
+                checkResponse(response);
             }
             case "Информация о приюте" -> {
                 message = new SendMessage(chatId, "Выберите меню:").replyMarkup(KeyboardsForAnswer.SHELTER_KEYBOARD);
                 response = bot.execute(message);
-                //checkResponse(response);
+                checkResponse(response);
             }
             case "Прислать отчет о питомце" -> {
                 //Добавить инфу в отчет в сущность***********
                 message = new SendMessage(chatId, "Тест3");
                 response = bot.execute(message);
                 //Проверка выполнения отправки сообщения
-
-                //checkResponse(response);
+                checkResponse(response);
             }
             case "Расписание работы" -> {
-                if (isDog){
+                if (isDog) {
                     message = new SendMessage(chatId, messageService.findById("scheduleDogShelter").getText()).replyMarkup(KeyboardsForAnswer.SHELTER_KEYBOARD);
-                }
-                else {
+                } else {
                     message = new SendMessage(chatId, messageService.findById("scheduleCatShelter").getText()).replyMarkup(KeyboardsForAnswer.SHELTER_KEYBOARD);
                 }
                 response = bot.execute(message);
-                //checkResponse(response);
+                checkResponse(response);
             }
-
             case "Описание приюта" -> {
-                if (isDog){
+                if (isDog) {
                     message = new SendMessage(chatId, messageService.findById("infoDogShelter").getText()).replyMarkup(KeyboardsForAnswer.SHELTER_KEYBOARD);
-                }
-                else {
+                } else {
                     message = new SendMessage(chatId, messageService.findById("infoCatShelter").getText()).replyMarkup(KeyboardsForAnswer.SHELTER_KEYBOARD);
                 }
                 response = bot.execute(message);
-                //checkResponse(response);
+                checkResponse(response);
             }
             case "Выбрать другой приют" -> {
                 message = new SendMessage(chatId, "Выберите приют").replyMarkup(KeyboardsForAnswer.START_KEYBOARD);
                 response = bot.execute(message);
-                //checkResponse(response);
+                checkResponse(response);
             }
             case "Позвать волонтера" -> {
                 //Пока отправляю жесткий ид приюта по хорошему нужно исходя из выбора юзера
                 bot.execute(new SendMessage(animalShelterPropsService.getVolunteerChat(1L)
-                        ,"Пользователь \n<a href=\"tg://user?id="+chatId+"\">"+
-                        update.message().chat().firstName()+"</a>\nпросит связаться с волонтером").parseMode(HTML));
+                        , "Пользователь \n<a href=\"tg://user?id=" + chatId + "\">" +
+                        update.message().chat().firstName() + "</a>\nпросит связаться с волонтером").parseMode(HTML));
 
                 message = new SendMessage(chatId, "Запрос отправлен. С вами свяжутся в течении 10-15 минут");
                 response = bot.execute(message);
                 //Проверка выполнения отправки сообщения
-
-                //checkResponse(response);
+                checkResponse(response);
             }
             case "/delete" ->
                 //Если пользователь уже добавлен, то удаляю его. Это для теста
                     userService.deleteUser(chatId);
-
             default -> {
                 message = new SendMessage(chatId, "Вы можете позвать волонтера").replyMarkup(KeyboardsForAnswer.SUPPORT_KEYBOARD);
                 response = bot.execute(message);
                 //Проверка выполнения отправки сообщения
-                //checkResponse(response);
+                checkResponse(response);
             }
         }
     }
 
     //Метод проверки отправки сообщения
-    /*private void checkResponse(SendResponse response) {
+    private void checkResponse(SendResponse response) {
         if (!response.isOk()) {
             logger.error("Response isn't correct. Error code: {}", response.errorCode());
         }
-    }*/
+    }
 }
