@@ -19,7 +19,7 @@ public interface UserService {
      *
      * @param user пользователь для добавления
      */
-    void addUser(User user);
+    User addUser(User user);
 
     /**
      * Удаляет пользователя по его идентификатору.

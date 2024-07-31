@@ -5,7 +5,7 @@ import pro.sky.petpartnersbot.entity.Message;
 public class MessageUtils {
     public static Message getMessage() {
         return Message.builder()
-                .text("util message text")
+                .text("text")
                 .type("type")
                 .build();
     }
