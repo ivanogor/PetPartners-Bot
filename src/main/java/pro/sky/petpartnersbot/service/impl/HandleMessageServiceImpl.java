@@ -97,25 +97,21 @@ public class HandleMessageServiceImpl implements HandleMessageService {
                 message = new SendMessage(chatId, "Тест3");
                 response = bot.execute(message);
                 //Проверка выполнения отправки сообщения
-
                 checkResponse(response);
             }
             case "Расписание работы" -> {
-                if (isDog){
+                if (isDog) {
                     message = new SendMessage(chatId, messageService.findById("scheduleDogShelter").getText()).replyMarkup(KeyboardsForAnswer.SHELTER_KEYBOARD);
-                }
-                else {
+                } else {
                     message = new SendMessage(chatId, messageService.findById("scheduleCatShelter").getText()).replyMarkup(KeyboardsForAnswer.SHELTER_KEYBOARD);
                 }
                 response = bot.execute(message);
                 checkResponse(response);
             }
-
             case "Описание приюта" -> {
-                if (isDog){
+                if (isDog) {
                     message = new SendMessage(chatId, messageService.findById("infoDogShelter").getText()).replyMarkup(KeyboardsForAnswer.SHELTER_KEYBOARD);
-                }
-                else {
+                } else {
                     message = new SendMessage(chatId, messageService.findById("infoCatShelter").getText()).replyMarkup(KeyboardsForAnswer.SHELTER_KEYBOARD);
                 }
                 response = bot.execute(message);
@@ -129,19 +125,17 @@ public class HandleMessageServiceImpl implements HandleMessageService {
             case "Позвать волонтера" -> {
                 //Пока отправляю жесткий ид приюта по хорошему нужно исходя из выбора юзера
                 bot.execute(new SendMessage(animalShelterPropsService.getVolunteerChat(1L)
-                        ,"Пользователь \n<a href=\"tg://user?id="+chatId+"\">"+
-                        update.message().chat().firstName()+"</a>\nпросит связаться с волонтером").parseMode(HTML));
+                        , "Пользователь \n<a href=\"tg://user?id=" + chatId + "\">" +
+                        update.message().chat().firstName() + "</a>\nпросит связаться с волонтером").parseMode(HTML));
 
                 message = new SendMessage(chatId, "Запрос отправлен. С вами свяжутся в течении 10-15 минут");
                 response = bot.execute(message);
                 //Проверка выполнения отправки сообщения
-
                 checkResponse(response);
             }
             case "/delete" ->
                 //Если пользователь уже добавлен, то удаляю его. Это для теста
                     userService.deleteUser(chatId);
-
             default -> {
                 message = new SendMessage(chatId, "Вы можете позвать волонтера").replyMarkup(KeyboardsForAnswer.SUPPORT_KEYBOARD);
                 response = bot.execute(message);
@@ -156,6 +150,4 @@ public class HandleMessageServiceImpl implements HandleMessageService {
             logger.error("Response isn't correct. Error code: {}", response.errorCode());
         }
     }
-
-
 }
