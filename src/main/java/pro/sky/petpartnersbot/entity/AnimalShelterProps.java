@@ -19,6 +19,8 @@ import java.time.LocalDateTime;
 @Builder
 public class AnimalShelterProps {
     @Id
+    @SequenceGenerator(name = "animal_shelters_props_seq", sequenceName = "animal_shelters_props_seq", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "animal_shelters_props_seq")
     @Column(name = "animal_shelters_props_id")
     private Long animalSheltersPropsId;
 
@@ -28,11 +30,15 @@ public class AnimalShelterProps {
     @Column(name = "prop_val")
     private String propVal;
 
-    @Column(name = "shelter_id")
-    private Long shelterId;
+    /**
+     * ФК на питомники
+     */
+    @Column(name = "chat_id")
+    private Long chatId;
 
     @Column(name = "date_from")
-    private LocalDateTime dateFrom;
+    @Builder.Default
+    private LocalDateTime dateFrom = LocalDateTime.now();
 
     @Column(name = "date_to")
     private LocalDateTime dateTo;
