@@ -153,6 +153,17 @@ insert into messages(type, text)
 values ('infoCatShelter', 'Кошачий приют в Алматы — это место, где каждая кошка находит заботу и внимание,' ||
                           ' ожидая своего шанса найти новый дом.');
 
+-- changeset n_mazin:step7_change_database
+drop TABLE if exists users;
+
+create TABLE users
+(
+    chat_id       BIGINT primary key,
+    user_name     TEXT,
+    contacts      TEXT,
+    adoption_date TIMESTAMP
+);
+
 -- changeset Krockle:add_entity_dict
 CREATE TABLE entity_dict
 (

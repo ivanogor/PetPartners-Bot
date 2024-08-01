@@ -5,16 +5,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import pro.sky.petpartnersbot.entity.User;
+import pro.sky.petpartnersbot.exception.UserNotFoundException;
 import pro.sky.petpartnersbot.repository.UsersRepository;
 import pro.sky.petpartnersbot.service.UserService;
 
 import java.util.List;
 
 
-/*
- * Сервис для управления объектами User.
- * Этот сервис предоставляет методы для поиска, создания и удаления записей о родителях питомцев.
- */
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
@@ -22,38 +19,28 @@ public class UserServiceImpl implements UserService {
     private final UsersRepository repository;
 
 
-    /**
-     * Находит родителя питомца по заданному идентификатору чата.
-     *
-     * @param chatId Идентификатор чата, по которому ищется родитель питомца.
-     * @return Объект PetParent, соответствующий заданному идентификатору чата, или null, если такой записи нет.
-     */
     @Override
     public User findById(Long chatId) {
         logger.info("Was invoked find PetParent by ChatId method");
-        return repository.findByChatId(chatId);
+        return repository.findById(chatId).orElseThrow(UserNotFoundException::new);
     }
 
-    /**
-     * Создает новую запись о родителе питомца.
-     *
-     * @param user Объект PetParent, который нужно сохранить.
-     */
     @Override
-    public void addUser(User user) {
+    public User addUser(User user) {
         logger.info("Was invoked create PetParent method");
-        repository.save(user);
+        return repository.save(user);
     }
 
-    /**
-     * Удаляет запись о родителе питомца по заданному идентификатору.
-     *
-     * @param id Идентификатор записи, которую нужно удалить.
-     */
     @Override
     public void deleteUser(long id) {
         logger.info("Was invoked delete PetParent method");
-        repository.deleteById(id);
+        User obtainedUser = repository.findById(id).orElse(null);
+        if(Objects.isNull(obtainedUser)){
+            throw new UserNotFoundException();
+        }
+        else{
+            repository.deleteById(id);
+        }
     }
 
     public int checkIfAnyExistByEnt(long id){

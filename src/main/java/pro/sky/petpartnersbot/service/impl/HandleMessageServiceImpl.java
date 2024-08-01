@@ -67,7 +67,6 @@ public class HandleMessageServiceImpl implements HandleMessageService {
      * @param chatId     Идентификатор чата.
      */
     //Метод анализа сообщений
-    @SneakyThrows
     private void processText(String updateText, Long chatId, Update update) {
         logger.info("Was invoked switching message with text method");
 
