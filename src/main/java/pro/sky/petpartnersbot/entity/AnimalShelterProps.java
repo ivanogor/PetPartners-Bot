@@ -19,6 +19,8 @@ public class AnimalShelterProps {
      * id параметра питомника
      */
     @Id
+    @SequenceGenerator(name = "animal_shelters_props_seq", sequenceName = "animal_shelters_props_seq", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "animal_shelters_props_seq")
     @Column(name = "animal_shelters_props_id")
     private Long animalSheltersPropsId;
 
@@ -37,14 +39,15 @@ public class AnimalShelterProps {
     /**
      * ФК на питомники
      */
-    @Column(name = "shelter_id")
-    private Long shelterId;
+    @Column(name = "chat_id")
+    private Long chatId;
 
     /**
      * Дата с
      */
     @Column(name = "date_from")
-    private LocalDateTime dateFrom;
+    @Builder.Default
+    private LocalDateTime dateFrom = LocalDateTime.now();
 
     /**
      * Дата до (добавил для историзма, но в целом сие не обязательно)

@@ -152,3 +152,77 @@ values ('infoDogShelter', 'Собачий приют в Алматы — это 
 insert into messages(type, text)
 values ('infoCatShelter', 'Кошачий приют в Алматы — это место, где каждая кошка находит заботу и внимание,' ||
                           ' ожидая своего шанса найти новый дом.');
+
+-- changeset Krockle:add_entity_dict
+CREATE TABLE entity_dict
+(
+    entity_id bigint NOT NULL,
+    name text,
+    CONSTRAINT entity_dict_pkey PRIMARY KEY (entity_id)
+);
+CREATE SEQUENCE entity_dict_seq;
+insert into entity_dict(entity_id,name) values (1,'Приют');
+insert into entity_dict(entity_id,name) values (2,'Клиент');
+
+-- changeset Krockle:alter_users
+ALTER TABLE IF EXISTS public.users ADD COLUMN entity_id bigint NOT NULL DEFAULT 2;
+
+ALTER TABLE public.users
+    ADD CONSTRAINT users_to_entity_d FOREIGN KEY (entity_id)
+    REFERENCES public.entity_dict (entity_id) MATCH SIMPLE
+    ON DELETE CASCADE;
+
+CREATE INDEX user_entity_id_idx on users(entity_id);
+
+insert into messages(type, text)
+values ('noAnyShltReg','Извините, на данный момент не зарегистрированно еще ни одного приюта :cry:');
+
+-- changeset Krockle:alter_property_dict
+insert into messages(type, text)
+values ('addShltInfo','Добавление/изменение информации о приюте');
+
+ALTER TABLE property_dict ADD COLUMN entity_id bigint NOT NULL DEFAULT 1;
+
+ALTER TABLE property_dict
+    ADD CONSTRAINT prop_d_to_entity_d FOREIGN KEY (entity_id)
+    REFERENCES public.entity_dict (entity_id) MATCH SIMPLE
+    ON DELETE CASCADE;
+
+-- changeset Krockle:drop_table_animal_shelters
+delete from animal_shelters_props;
+ALTER TABLE animal_shelters_props
+    RENAME shelter_id TO chat_id;
+ALTER TABLE IF EXISTS public.animal_shelters_props DROP CONSTRAINT IF EXISTS an_slt_props_to_an_slt;
+ALTER TABLE animal_shelters_props
+    ADD CONSTRAINT an_slt_props_to_users FOREIGN KEY (chat_id)
+    REFERENCES public.users (chat_id) MATCH SIMPLE
+    ON DELETE CASCADE;
+DROP TABLE animal_shelters;
+-- changeset Krockle:user_pos_tbl
+CREATE TABLE user_pos
+(
+    chat_id BIGINT primary key,
+    pos text
+);
+-- changeset Krockle:user_pos_tbl_add_prev
+ALTER TABLE user_pos ADD COLUMN prev_pos text;
+-- changeset Krockle:add_new_message_shlt_list
+insert into messages(type, text)
+values ('getShltList','Выберите приют');
+-- changeset Krockle:add_fk_on_user_pos
+ALTER TABLE IF EXISTS public.user_pos
+    ADD CONSTRAINT "FK_USER_POS_CHAT_ID" FOREIGN KEY (chat_id)
+    REFERENCES public.users (chat_id) MATCH SIMPLE
+    ON DELETE CASCADE;
+-- changeset Krockle:user_tbl_add_shlt_fk
+ALTER TABLE users ADD COLUMN shl_id BIGINT;
+ALTER TABLE IF EXISTS public.users
+    ADD CONSTRAINT "FK_USER_SHLT_ID" FOREIGN KEY (shl_id)
+    REFERENCES public.users (chat_id) MATCH SIMPLE
+    ON DELETE SET NULL;
+
+-- changeset Krockle:add_new_info_msg_for_clnt
+insert into messages(type, text)
+values ('noAnyShltInfo','Текущая информация о приюте отсутсвует :cry:');
+insert into messages(type, text)
+values ('showShltInfo','Вы можете посмотреть информацию о приюте и добавить свой номер для связи');
