@@ -9,7 +9,7 @@ import pro.sky.petpartnersbot.exception.UserNotFoundException;
 import pro.sky.petpartnersbot.repository.UsersRepository;
 import pro.sky.petpartnersbot.service.UserService;
 
-import java.util.Objects;
+import java.util.List;
 
 
 @Service
@@ -41,5 +41,18 @@ public class UserServiceImpl implements UserService {
         else{
             repository.deleteById(id);
         }
+    }
+
+    public int checkIfAnyExistByEnt(long id){
+        return repository.getCntByEntity(id);
+    }
+
+    public List<User> getAllByEntId(long entity_id){
+        return repository.findByEntityId(entity_id);
+    }
+
+    public User findByUserName(String userName) {
+        logger.info("Was invoked find PetParent by user_name method");
+        return repository.findByUserName(userName);
     }
 }

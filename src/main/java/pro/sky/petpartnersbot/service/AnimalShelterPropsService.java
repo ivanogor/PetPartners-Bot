@@ -1,5 +1,9 @@
 package pro.sky.petpartnersbot.service;
 
+import pro.sky.petpartnersbot.entity.AnimalShelterProps;
+
+import java.util.List;
+
 /**
  * Интерфейс сервиса для работы со свойствами приютов для животных.
  */
@@ -10,5 +14,7 @@ public interface AnimalShelterPropsService {
      * @param animalShelterId идентификатор приюта
      * @return идентификатор чата волонтеров
      */
-    String getVolunteerChat(Long animalShelterId);
+    
+    AnimalShelterProps getUserProp(Long propId, Long animalShelterId);
+    List<AnimalShelterProps> getShltListProps(Long animalShelterId);
 }

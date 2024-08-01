@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import pro.sky.petpartnersbot.entity.AnimalShelterProps;
 import pro.sky.petpartnersbot.repository.AnimalShelterPropsRepository;
 
 @Service
@@ -12,10 +13,12 @@ public class AnimalShelterPropsServiceImpl {
     private final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
     private final AnimalShelterPropsRepository animalShelterPropsRepository;
 
-    private final Long volunteerChatPropId = 5L;
-
-    public String getVolunteerChat(Long animalShelterId){
+    public AnimalShelterProps getUserProp(Long propId,Long animalShelterId){
         logger.info("Was invoked getVolunteerChat method");
-        return animalShelterPropsRepository.getVolunteerChatId(volunteerChatPropId,animalShelterId);
+        return animalShelterPropsRepository.getUserProp(propId,animalShelterId);
+    }
+
+    public void addShelterProp(AnimalShelterProps animalShelterProps){
+        animalShelterPropsRepository.save(animalShelterProps);
     }
 }
