@@ -5,7 +5,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import pro.sky.petpartnersbot.entity.User;
-import pro.sky.petpartnersbot.exception.UserNotFoundException;
 import pro.sky.petpartnersbot.repository.UsersRepository;
 import pro.sky.petpartnersbot.service.UserService;
 
@@ -22,7 +21,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public User findById(Long chatId) {
         logger.info("Was invoked find PetParent by ChatId method");
-        return repository.findById(chatId).orElseThrow(UserNotFoundException::new);
+        return repository.findByChatId(chatId);
     }
 
     @Override
@@ -35,12 +34,7 @@ public class UserServiceImpl implements UserService {
     public void deleteUser(long id) {
         logger.info("Was invoked delete PetParent method");
         User obtainedUser = repository.findById(id).orElse(null);
-        if(Objects.isNull(obtainedUser)){
-            throw new UserNotFoundException();
-        }
-        else{
-            repository.deleteById(id);
-        }
+        repository.deleteById(id);
     }
 
     public int checkIfAnyExistByEnt(long id){
