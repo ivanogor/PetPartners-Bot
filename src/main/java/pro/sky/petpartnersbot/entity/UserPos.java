@@ -9,6 +9,9 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * Сущность, представляющая информацию о позиции пользователя в базе данных.
+ */
 @Entity
 @Data
 @Table(name = "user_pos")

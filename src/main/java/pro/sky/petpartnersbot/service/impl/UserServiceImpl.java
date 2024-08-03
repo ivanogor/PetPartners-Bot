@@ -9,6 +9,7 @@ import pro.sky.petpartnersbot.repository.UsersRepository;
 import pro.sky.petpartnersbot.service.UserService;
 
 import java.util.List;
+import java.util.Objects;
 
 
 @Service

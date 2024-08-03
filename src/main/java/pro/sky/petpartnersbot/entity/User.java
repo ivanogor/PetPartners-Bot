@@ -33,9 +33,7 @@ public class User {
 
     @Column(name = "adoption_date")
     private LocalDateTime adoptionDate;
-    /**
-     * ФК на сущность
-     */
+
     @Column(name = "entity_id")
     private Long entityId;
 
