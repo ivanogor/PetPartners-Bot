@@ -9,9 +9,9 @@ import pro.sky.petpartnersbot.entity.ShelterRoadMap;
 import java.io.IOException;
 
 public interface ShelterRoadMapService {
-    void uploadPhoto(TelegramBot bot, Update update);
+    Long uploadPhoto(TelegramBot bot, Update update);
 
-    void uploadDocument(TelegramBot bot, Update update);
+    Long uploadDocument(TelegramBot bot, Update update);
 
     ShelterRoadMap findRoadMap(Long shelterId);
 }

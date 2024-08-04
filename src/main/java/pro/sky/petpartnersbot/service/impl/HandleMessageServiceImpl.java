@@ -194,15 +194,34 @@ public class HandleMessageServiceImpl implements HandleMessageService {
             prevPos = userPos.getPrevPos();
         }
         boolean chekAnyShltExist = userService.checkIfAnyExistByEnt(TelegramBotConsts.shelt) == 0 ? false : true;
-        if (pos.equals("Добавить хему проезда") && param == null) {
-            if (update.message().photo() == null) {
-                message = new SendMessage(chatId, "No photo");
-            } else {
-                message = new SendMessage(chatId, "Is photo");
-
-                shelterRoadMapService.uploadPhoto(bot, update);
+        if (pos.equals("Добавить схему проезда") && param == null) {
+            AnimalShelterProps animalShelterProps;
+            PropertyDict shltProp;
+            shltProp = propertyDictService.findByNameAndEntity("Добавить схему проезда", TelegramBotConsts.shelt);
+            animalShelterProps = animalShelterPropsService.getUserProp(shltProp.getPropId(), chatId);
+            if (animalShelterProps != null) {
+                animalShelterProps.setDateTo(LocalDateTime.now());
+                animalShelterPropsService.addShelterProp(animalShelterProps);
             }
-            bot.execute(message);
+            if (update.message().document() != null) {
+                animalShelterProps = AnimalShelterProps.builder()
+                        .chatId(chatId)
+                        .propId(shltProp.getPropId())
+                        .propVal(update.message().text())
+                        .roadMapId(shelterRoadMapService.uploadDocument(bot, update))
+                        .build();
+            } else if (update.message().photo() != null) {
+                animalShelterProps = AnimalShelterProps.builder()
+                        .chatId(chatId)
+                        .propId(shltProp.getPropId())
+                        .propVal(update.message().text())
+                        .roadMapId(shelterRoadMapService.uploadPhoto(bot, update))
+                        .build();
+            }
+            animalShelterPropsService.addShelterProp(animalShelterProps);
+            getShltPropsMenu(chatId, "/start");
+            saveUserPos(chatId, "/start", pos);
+
         } else {
             switch (param) {
                 case "/start" -> {

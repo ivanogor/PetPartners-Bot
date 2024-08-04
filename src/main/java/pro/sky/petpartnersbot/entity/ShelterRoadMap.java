@@ -16,11 +16,12 @@ import java.time.LocalDateTime;
 @Table(name = "shelter_road_map")
 public class ShelterRoadMap {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "road_map_id")
     private Long mapId;
 
     @Lob
-    @Column(name = "image_data")
+    @Column(name = "image_data", columnDefinition = "bytea")
     private byte[] imageData;
 
     @Column(name = "adoption_date")

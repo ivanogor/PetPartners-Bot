@@ -16,17 +16,11 @@ import pro.sky.petpartnersbot.entity.ShelterRoadMap;
 import pro.sky.petpartnersbot.repository.ShelterRoadMapRepository;
 import pro.sky.petpartnersbot.service.ShelterRoadMapService;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.net.URL;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import java.sql.*;
 
 @Service
 @RequiredArgsConstructor
@@ -37,39 +31,41 @@ public class ShelterRoadMapServiceImpl implements ShelterRoadMapService {
     private final TelegramBot bot;
 
     @Override
-    public void uploadPhoto(TelegramBot bot, Update update) {
+    public Long uploadPhoto(TelegramBot bot, Update update) {
         logger.info("Was invoked upload shelter road map from photo method");
         String chatId = update.message().chat().id().toString();
         bot.execute(new SendChatAction(chatId, ChatAction.upload_photo));
         String fileId = update.message().photo()[update.message().photo().length - 1].fileId();
-        processFile(bot, fileId, update.message().messageId().toString());
+        return processFile(bot, fileId, update.message().messageId().toString());
     }
 
     @Override
-    public void uploadDocument(TelegramBot bot, Update update) {
+    public Long uploadDocument(TelegramBot bot, Update update) {
         logger.info("Was invoked upload shelter road map from document method");
 
         String chatId = update.message().chat().id().toString();
         bot.execute(new SendChatAction(chatId, ChatAction.upload_photo));
         String fileId = update.message().document().fileId();
-        processFile(bot, fileId, update.message().messageId().toString());
+        return processFile(bot, fileId, update.message().messageId().toString());
     }
 
-    private static void processFile(TelegramBot bot, String fileId, String messageId) {
+    private Long processFile(TelegramBot bot, String fileId, String messageId) {
         GetFile getFileRequest = new GetFile(fileId);
         GetFileResponse getFileResponse = bot.execute(getFileRequest);
         com.pengrad.telegrambot.model.File file = getFileResponse.file();
         String filePath = file.filePath();
+        Long currentId = 0L;
 
         try {
             File localFile = downloadFile(bot, file);
-            saveFileToDatabase(bot, localFile, file, messageId);
+            currentId = saveFileToDatabase(localFile);
         } catch (IOException | SQLException e) {
             e.printStackTrace();
         }
+        return currentId;
     }
 
-    private static File downloadFile(TelegramBot bot, com.pengrad.telegrambot.model.File fileArg)
+    private File downloadFile(TelegramBot bot, com.pengrad.telegrambot.model.File fileArg)
             throws IOException {
         URL url = new URL(bot.getFullFilePath(fileArg));
         ReadableByteChannel rbc = Channels.newChannel(url.openStream());
@@ -80,20 +76,24 @@ public class ShelterRoadMapServiceImpl implements ShelterRoadMapService {
         return file;
     }
 
-    private static void saveFileToDatabase(TelegramBot bot, File fileIo,
-                                           com.pengrad.telegrambot.model.File file,
-                                           String messageId) throws SQLException, IOException {
+    private Long saveFileToDatabase(File fileIo) throws SQLException, IOException {
+        Long currentId = 1L;
+        while (repository.existsById(currentId)) {
+            currentId++;
+        }
         try (Connection conn = DriverManager.getConnection("jdbc:postgresql://localhost:5432/PetParentsDB",
                 "newUser", "newUser")) {
-            String sql = "INSERT INTO shelter_road_map (image_data) VALUES (?)";
+            String sql = "INSERT INTO shelter_road_map (road_map_id, image_data) VALUES (?, ?)";
             try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
-                pstmt.setBinaryStream(1, new FileInputStream(fileIo), (int) fileIo.length());
+                pstmt.setLong(1, currentId);
+                pstmt.setBinaryStream(2, new FileInputStream(fileIo), (int) fileIo.length());
                 pstmt.executeUpdate();
             }
         }
+        return currentId;
     }
 
-    private static void sendNoPhotoMessage(TelegramBot bot, String chatId) {
+    private void sendNoPhotoMessage(TelegramBot bot, String chatId) {
         SendMessage request = new SendMessage(chatId, "Пожалуйста, отправьте фото или файл с изображением.");
         bot.execute(request);
     }

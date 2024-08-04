@@ -253,3 +253,12 @@ UPDATE property_dict SET name = 'Добавить хему проезда'
     WHERE prop_id = 6;
 
 INSERT INTO property_dict(prop_id,name,date_from,entity_id) values (nextval('property_dict_seq'),'Получить схему проезда',default,2);
+
+--changeset n_mazin:changing_road_map_into_dict_for_shelter_correct
+UPDATE property_dict SET name = 'Добавить схему проезда'
+    WHERE prop_id = 6;
+ALTER TABLE shelter_road_map DROP COLUMN image_data;
+ALTER TABLE shelter_road_map ADD COLUMN image_data bytea;
+
+--changeset n_mazin:changing_road_map_adoption_date_default
+ALTER TABLE shelter_road_map ALTER COLUMN adoption_date SET DEFAULT NOW();

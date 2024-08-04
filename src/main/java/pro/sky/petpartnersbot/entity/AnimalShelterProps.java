@@ -42,4 +42,7 @@ public class AnimalShelterProps {
 
     @Column(name = "date_to")
     private LocalDateTime dateTo;
+
+    @Column(name = "road_map_id")
+    private Long roadMapId;
 }
