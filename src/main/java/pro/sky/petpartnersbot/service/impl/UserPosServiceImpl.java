@@ -6,10 +6,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import pro.sky.petpartnersbot.entity.UserPos;
 import pro.sky.petpartnersbot.repository.UserPosRepository;
+import pro.sky.petpartnersbot.service.UserPosService;
 
 @Service
 @RequiredArgsConstructor
-public class UserPosServiceImpl implements UserPosService{
+public class UserPosServiceImpl implements UserPosService {
     private final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
     private final UserPosRepository repository;
 

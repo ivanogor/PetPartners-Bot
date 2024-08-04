@@ -226,3 +226,30 @@ insert into messages(type, text)
 values ('noAnyShltInfo','Текущая информация о приюте отсутсвует :cry:');
 insert into messages(type, text)
 values ('showShltInfo','Вы можете посмотреть информацию о приюте и добавить свой номер для связи');
+
+-- changeset n_mazin:step8_adding_shelter_road_Map
+ALTER TABLE animal_shelters_props ADD COLUMN road_map_id bigint;
+
+CREATE TABLE shelter_road_map (
+    road_map_id     BIGINT primary key,
+    image_data      BYTEA,
+    adoption_date   TIMESTAMP
+);
+
+ALTER TABLE animal_shelters_props
+    ADD CONSTRAINT an_slt_to_road_map FOREIGN KEY (road_map_id)
+    REFERENCES shelter_road_map (road_map_id) MATCH SIMPLE
+    ON DELETE CASCADE;
+
+-- changeset n_mazin:changing_shelter_road_map_type
+ALTER TABLE shelter_road_map DROP COLUMN image_data;
+ALTER TABLE shelter_road_map ADD COLUMN image_data OID;
+
+--changeset n_mazin:adding_road_map_into_dict
+INSERT INTO property_dict(prop_id,name,date_from) values (nextval('property_dict_seq'),'Схема проезда',default);
+
+--changeset n_mazin:changing_road_map_into_dict_for_shelter
+UPDATE property_dict SET name = 'Добавить хему проезда'
+    WHERE prop_id = 6;
+
+INSERT INTO property_dict(prop_id,name,date_from,entity_id) values (nextval('property_dict_seq'),'Получить схему проезда',default,2);

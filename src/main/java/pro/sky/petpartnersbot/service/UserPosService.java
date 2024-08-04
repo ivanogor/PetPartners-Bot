@@ -1,4 +1,4 @@
-package pro.sky.petpartnersbot.service.impl;
+package pro.sky.petpartnersbot.service;
 
 import pro.sky.petpartnersbot.entity.UserPos;
 
