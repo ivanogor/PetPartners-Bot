@@ -13,7 +13,6 @@ public class TelegramBotConsts {
      * Константа для идентификации сущности "Пользователь".
      */
     public static final Long user = 2L;
-    public static final Long pet = 3L;
 
     /**
      * Константа для идентификации сущности "Питомец".

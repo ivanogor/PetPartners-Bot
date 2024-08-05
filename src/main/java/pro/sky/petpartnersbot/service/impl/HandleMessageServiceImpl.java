@@ -89,45 +89,29 @@ public class HandleMessageServiceImpl implements HandleMessageService {
 
     }
 
-    private void getShltPropsMenu(Long chatId,String pos,String prevPos,Long entity_id){
-        SendMessage message;
-        SendResponse response;
-        String messageText;
-        List<PropertyDict> shltProps = propertyDictService.findByEntity(entity_id);
-        if (shltProps.isEmpty()&&entity_id == TelegramBotConsts.shelt){
-            message = new SendMessage(chatId,"Действующих разделов меню " +
-                    "не найдено свяжитесь с администратором бота").replyMarkup(new ReplyKeyboardMarkup("Обновить")
-                    .addRow(new KeyboardButton("Назад"))
-                    .resizeKeyboard(true)
-                    .oneTimeKeyboard(false));
-            saveUserPos(chatId,pos,prevPos);
-        } else {
-        switchFunc(updateText, foundedUser, update, chatId, userPos);
-    }
-
     /**
      * Получает меню свойств приюта для животных.
      *
      * @param chatId Идентификатор чата.
      * @param pos    Текущая позиция пользователя.
      */
-    private void getShltPropsMenu(Long chatId, String pos) {
+    private void getShltPropsMenu(Long chatId, String pos,String prevPos,Long entityId) {
         SendMessage message;
         SendResponse response;
-        List<PropertyDict> shltProps = propertyDictService.findByEntity(TelegramBotConsts.shelt);
+        List<PropertyDict> shltProps = propertyDictService.findByEntity(entityId);
         if (shltProps.isEmpty()) {
             message = new SendMessage(chatId, "Действующих разделов о приюте " +
                     "не найдено свяжитесь с администратором бота").replyMarkup(new ReplyKeyboardMarkup("Обновить").resizeKeyboard(true)
                     .oneTimeKeyboard(false));
         } else {
-            String messageText = messageService.findById("addShltInfo").getText();
+            String messageText;
             ReplyKeyboardMarkup propsKeyboard = new ReplyKeyboardMarkup("").resizeKeyboard(true)
                     .oneTimeKeyboard(false);
 
             for (PropertyDict shltProp : shltProps) {
                 propsKeyboard.addRow(new KeyboardButton(shltProp.getName()));
             }
-            if (entity_id == TelegramBotConsts.shelt){
+            if (entityId == TelegramBotConsts.shelt){
                 messageText = messageService.findById("addShltInfo").getText();
 
                 propsKeyboard.addRow(new KeyboardButton("Схема проезда"))
@@ -210,8 +194,6 @@ public class HandleMessageServiceImpl implements HandleMessageService {
         response = bot.execute(message);
         checkResponse(response);
     }
-
-    private void getClientShltMenu(Long chatId,Long shltId){
 
     /**
      * Получает меню клиента для выбранного приюта.
@@ -413,9 +395,6 @@ public class HandleMessageServiceImpl implements HandleMessageService {
                 response = bot.execute(message);
                 checkResponse(response);
                 saveUserPos(chatId, "Проверить номер", "/start");
-            }
-            case "Назад", "Обновить" -> {
-                switchFunc(prevPos, user, update, chatId, userPos);
             }
             case "Имя питомца" ->{
                 Long petId =  Long.parseLong(pos.substring(pos.indexOf("(")+1,pos.indexOf(")")));
