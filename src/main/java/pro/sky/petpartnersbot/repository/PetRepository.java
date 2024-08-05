@@ -9,7 +9,7 @@ import java.util.List;
 public interface PetRepository extends JpaRepository<Pet,Long> {
     @Query(value = "SELECT p.pet_id, "+
                     "trim(COALESCE(p.name||' ','')||'('||p.pet_id||')') NAME, "+
-                    "age, pet_type_id, chat_id, date_from, date_to, entity_id, photo "+
+                    "age, pet_type_id, chat_id, date_from, date_to, entity_id "+
                     "from pets p " +
                     "where p.chat_id = ?1 " +
                     "and p.date_from<=CURRENT_TIMESTAMP " +

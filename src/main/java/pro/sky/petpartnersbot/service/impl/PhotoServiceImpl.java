@@ -3,13 +3,10 @@ package pro.sky.petpartnersbot.service.impl;
 import com.pengrad.telegrambot.model.File;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.fileupload.FileItem;
 import org.apache.tomcat.util.http.fileupload.disk.DiskFileItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 import pro.sky.petpartnersbot.entity.Photos;
 import pro.sky.petpartnersbot.repository.PhotoRepository;
 import pro.sky.petpartnersbot.service.PhotoService;
@@ -19,8 +16,6 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
-
-import static java.nio.file.StandardOpenOption.CREATE_NEW;
 
 @Service
 @RequiredArgsConstructor
@@ -59,11 +54,13 @@ public class PhotoServiceImpl implements PhotoService {
                             .data(fileItem.get())
                             .fileSize(fileItem.getSize())
                             .mediaType(fileItem.getContentType())
+                            .filePath(fileItem.getName())
                             .petId(petId)
                             .build();
                 }else {
                     photo.setData(fileItem.get());
                     photo.setFileSize(fileItem.getSize());
+                    photo.setFilePath(fileItem.getName());
                     photo.setMediaType(fileItem.getContentType());
                 }
             }else{
@@ -73,10 +70,12 @@ public class PhotoServiceImpl implements PhotoService {
                         .data(fileItem.get())
                         .fileSize(fileItem.getSize())
                         .mediaType(fileItem.getContentType())
+                        .filePath(fileItem.getName())
                         .chatId(chatId)
                         .build();
                 }else {
                     photo.setData(fileItem.get());
+                    photo.setFilePath(fileItem.getName());
                     photo.setFileSize(fileItem.getSize());
                     photo.setMediaType(fileItem.getContentType());
                 }

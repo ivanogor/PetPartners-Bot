@@ -6,6 +6,7 @@ import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.model.request.KeyboardButton;
 import com.pengrad.telegrambot.model.request.ReplyKeyboardMarkup;
 import com.pengrad.telegrambot.request.GetFile;
+import com.pengrad.telegrambot.request.SendAnimation;
 import com.pengrad.telegrambot.request.SendMessage;
 import com.pengrad.telegrambot.request.SendPhoto;
 import com.pengrad.telegrambot.response.GetFileResponse;
@@ -14,17 +15,12 @@ import com.vdurmont.emoji.EmojiParser;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 import pro.sky.petpartnersbot.configuration.TelegramBotConsts;
 import pro.sky.petpartnersbot.entity.*;
 import pro.sky.petpartnersbot.service.HandleMessageService;
-import pro.sky.petpartnersbot.service.PhotoService;
 import pro.sky.petpartnersbot.service.utils.KeyboardsForAnswer;
 
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -50,9 +46,6 @@ public class HandleMessageServiceImpl implements HandleMessageService {
     private final PetServiceImpl petService;
     private final PetTypeDictSeviceImpl petTypeDictSevice;
     private final PhotoServiceImpl photoService;
-
-    @Value("${path.to.photos.folder}")
-    private String photosDir;
 
     /**
      * Обрабатывает входящее сообщение от Telegram API.
@@ -400,12 +393,19 @@ public class HandleMessageServiceImpl implements HandleMessageService {
                         "Текущее фото: ").replyMarkup(KeyboardsForAnswer.RETURN_KEYBOARD);
                     response = bot.execute(message);
                 }else {
-
-                    SendPhoto photoMessage = new SendPhoto(chatId, photos.getData())
-                            .caption("Вы можете добавить/обновить фото питомца\n")
-                            .replyMarkup(KeyboardsForAnswer.RETURN_KEYBOARD);
-                    response = bot.execute(photoMessage);
+                    if (Pattern.matches("^.*\\.gif$", photos.getFilePath())){
+                        SendAnimation animation = new SendAnimation(chatId,photos.getData())
+                                .caption("Вы можете добавить/обновить фото питомца\n")
+                                .replyMarkup(KeyboardsForAnswer.RETURN_KEYBOARD);
+                        response = bot.execute(animation);
+                    }else{
+                        SendPhoto photoMessage = new SendPhoto(chatId, photos.getData())
+                                .caption("Вы можете добавить/обновить фото питомца\n")
+                                .replyMarkup(KeyboardsForAnswer.RETURN_KEYBOARD);
+                        response = bot.execute(photoMessage);
+                    }
                 }
+
                 checkResponse(response);
                 saveUserPos(chatId,"Фото питомца",pos);
             }
