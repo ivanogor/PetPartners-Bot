@@ -8,19 +8,13 @@ import pro.sky.petpartnersbot.entity.ShelterRoadMap;
 import java.util.List;
 
 public interface ShelterRoadMapRepository extends JpaRepository<ShelterRoadMap, Long> {
-    @Query(value = "select * " +
-            "from property_dict pd " +
-
-            "from property_dict pd " +
-            "where pd.entity_id = ?1 " +
-            "and pd.prop_id<>5 " +
-            "and pd.date_from<=CURRENT_TIMESTAMP " +
-            "and COALESCE(pd.date_to,CURRENT_DATE+1)>CURRENT_TIMESTAMP " +
-            "and exists(select 1 " +
-            "from animal_shelters_props asp " +
-            "where asp.chat_id = ?2 " +
-            "and asp.prop_id = pd.prop_id " +
+    @Query(value = "select srm.road_map_id, srm.adoption_date, srm.image_data " +
+            "from shelter_road_map as srm " +
+            "inner join animal_shelters_props as asp " +
+            "on asp.road_map_id=srm.road_map_id " +
+            "where asp.chat_id = ?1 " +
+            "and asp.prop_id = 6 " +
             "and asp.date_from<=CURRENT_TIMESTAMP " +
-            "and COALESCE(asp.date_to,CURRENT_DATE+1)>CURRENT_TIMESTAMP)", nativeQuery = true)
-    List<PropertyDict> getChatIdFilled(Long entity_id, Long chat_id);
+            "and COALESCE(asp.date_to,CURRENT_DATE+1)>CURRENT_TIMESTAMP", nativeQuery = true)
+    ShelterRoadMap getRoadMap(Long chat_id);
 }

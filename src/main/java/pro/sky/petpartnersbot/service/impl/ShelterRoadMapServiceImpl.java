@@ -5,7 +5,6 @@ import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.model.request.ChatAction;
 import com.pengrad.telegrambot.request.GetFile;
 import com.pengrad.telegrambot.request.SendChatAction;
-import com.pengrad.telegrambot.request.SendMessage;
 import com.pengrad.telegrambot.response.GetFileResponse;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import pro.sky.petpartnersbot.entity.ShelterRoadMap;
+import pro.sky.petpartnersbot.entity.User;
 import pro.sky.petpartnersbot.repository.ShelterRoadMapRepository;
 import pro.sky.petpartnersbot.service.ShelterRoadMapService;
 
@@ -31,6 +31,17 @@ public class ShelterRoadMapServiceImpl implements ShelterRoadMapService {
     private final TelegramBot bot;
 
     @Override
+    public Long switchAct(TelegramBot bot, Update update, User user) {
+        if (update.message().document() != null) {
+            return uploadDocument(bot, update);
+        } else if (update.message().photo() != null) {
+            return uploadPhoto(bot, update);
+        }
+        return null;
+    }
+
+
+    @Override
     public Long uploadPhoto(TelegramBot bot, Update update) {
         logger.info("Was invoked upload shelter road map from photo method");
         String chatId = update.message().chat().id().toString();
@@ -42,7 +53,6 @@ public class ShelterRoadMapServiceImpl implements ShelterRoadMapService {
     @Override
     public Long uploadDocument(TelegramBot bot, Update update) {
         logger.info("Was invoked upload shelter road map from document method");
-
         String chatId = update.message().chat().id().toString();
         bot.execute(new SendChatAction(chatId, ChatAction.upload_photo));
         String fileId = update.message().document().fileId();
@@ -93,14 +103,15 @@ public class ShelterRoadMapServiceImpl implements ShelterRoadMapService {
         return currentId;
     }
 
-    private void sendNoPhotoMessage(TelegramBot bot, String chatId) {
-        SendMessage request = new SendMessage(chatId, "Пожалуйста, отправьте фото или файл с изображением.");
-        bot.execute(request);
-    }
-
     @Override
     public ShelterRoadMap findRoadMap(Long shelterId) {
         logger.info("Was invoked find shelter road map method");
         return null;
+    }
+
+    @Override
+    public void getRoadMap(User user) {
+        ShelterRoadMap roadMap = repository.getRoadMap(user.getShlId());
+        //System.out.println(roadMap.getMapId());
     }
 }

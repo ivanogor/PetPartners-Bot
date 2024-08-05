@@ -194,34 +194,26 @@ public class HandleMessageServiceImpl implements HandleMessageService {
             prevPos = userPos.getPrevPos();
         }
         boolean chekAnyShltExist = userService.checkIfAnyExistByEnt(TelegramBotConsts.shelt) == 0 ? false : true;
-        if (pos.equals("Добавить схему проезда") && param == null) {
+        if (pos.equals("Схема проезда") && param == null && user.getEntityId() == TelegramBotConsts.shelt) {
             AnimalShelterProps animalShelterProps;
             PropertyDict shltProp;
-            shltProp = propertyDictService.findByNameAndEntity("Добавить схему проезда", TelegramBotConsts.shelt);
+            shltProp = propertyDictService.findByNameAndEntity("Схема проезда", TelegramBotConsts.shelt);
             animalShelterProps = animalShelterPropsService.getUserProp(shltProp.getPropId(), chatId);
             if (animalShelterProps != null) {
                 animalShelterProps.setDateTo(LocalDateTime.now());
                 animalShelterPropsService.addShelterProp(animalShelterProps);
             }
-            if (update.message().document() != null) {
-                animalShelterProps = AnimalShelterProps.builder()
-                        .chatId(chatId)
-                        .propId(shltProp.getPropId())
-                        .propVal(update.message().text())
-                        .roadMapId(shelterRoadMapService.uploadDocument(bot, update))
-                        .build();
-            } else if (update.message().photo() != null) {
-                animalShelterProps = AnimalShelterProps.builder()
-                        .chatId(chatId)
-                        .propId(shltProp.getPropId())
-                        .propVal(update.message().text())
-                        .roadMapId(shelterRoadMapService.uploadPhoto(bot, update))
-                        .build();
-            }
+            animalShelterProps = AnimalShelterProps.builder()
+                    .chatId(chatId)
+                    .propId(shltProp.getPropId())
+                    .propVal(pos)
+                    .roadMapId(shelterRoadMapService.switchAct(bot, update, user))
+                    .build();
             animalShelterPropsService.addShelterProp(animalShelterProps);
             getShltPropsMenu(chatId, "/start");
             saveUserPos(chatId, "/start", pos);
-
+        } else if (pos.equals("Схема проезда") && user.getEntityId() == TelegramBotConsts.user) {
+            shelterRoadMapService.getRoadMap(user);
         } else {
             switch (param) {
                 case "/start" -> {

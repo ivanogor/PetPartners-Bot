@@ -262,3 +262,8 @@ ALTER TABLE shelter_road_map ADD COLUMN image_data bytea;
 
 --changeset n_mazin:changing_road_map_adoption_date_default
 ALTER TABLE shelter_road_map ALTER COLUMN adoption_date SET DEFAULT NOW();
+
+--changeset n_mazin:changing_road_map_text
+UPDATE property_dict SET name = 'Схема проезда'
+    WHERE prop_id = 6;
+DELETE FROM property_dict WHERE prop_id = 7;
