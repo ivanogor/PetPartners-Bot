@@ -330,3 +330,7 @@ CREATE SEQUENCE photo_seq;
 -- changeset Krockle:drop_col_photo_from_pet
 ALTER TABLE IF EXISTS public.pets
     DROP COLUMN photo;
+
+-- changeset Krockle:add_some_props_for_pets
+insert into property_dict(prop_id,name,date_from,entity_id) values (nextval('property_dict_seq'),'Правила знакомства с питомцем',default,3);
+insert into property_dict(prop_id,name,date_from,entity_id) values (nextval('property_dict_seq'),'Список необходимых документов',default,3);

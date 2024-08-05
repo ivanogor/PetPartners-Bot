@@ -17,6 +17,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 
+import static pro.sky.petpartnersbot.service.utils.MimeTypeByExtention.getMimeType;
+
 @Service
 @RequiredArgsConstructor
 public class PhotoServiceImpl implements PhotoService {
@@ -32,7 +34,7 @@ public class PhotoServiceImpl implements PhotoService {
     @Transactional
     public Photos findPhotoByChatId (long chatId) {
         logger.info("Was invoked method for get avatar");
-        return repository.findByPetId(chatId);
+        return repository.findByChatId(chatId);
     }
     @Transactional
     public void uploadPhoto(Long petId,Long chatId, File photoFile, String token) throws IOException {
@@ -41,10 +43,15 @@ public class PhotoServiceImpl implements PhotoService {
         DiskFileItem fileItem;
         String fileUrl = String.format("https://api.telegram.org/file/bot%s/%s", token, photoFile.filePath());
         try (InputStream in = new URL(fileUrl).openStream()) {
-            Path tempFile = Files.createTempFile(null, null);
+            String prefix = photoFile.filePath().substring(photoFile.filePath().lastIndexOf("/")+1,photoFile.filePath().lastIndexOf(".")) ;
+            String suffix = photoFile.filePath().substring(photoFile.filePath().lastIndexOf(".")+1) ;
+            Path tempFile = Files.createTempFile(prefix, suffix);
             Files.copy(in, tempFile, StandardCopyOption.REPLACE_EXISTING);
-
-            fileItem = new DiskFileItem(tempFile.toFile().getName(), "application/octet-stream", true, tempFile.toFile().getName(), (int)tempFile.toFile().length(), tempFile.getParent().toFile());
+            String mimeType = getMimeType(suffix);
+            if (mimeType == null){
+                mimeType = "application/octet-stream";
+            }
+            fileItem = new DiskFileItem(tempFile.toFile().getName(), mimeType, true, tempFile.toFile().getName(), (int)tempFile.toFile().length(), tempFile.getParent().toFile());
             fileItem.getOutputStream().write(Files.readAllBytes(tempFile));
 
             if (petId!=null){
@@ -54,13 +61,13 @@ public class PhotoServiceImpl implements PhotoService {
                             .data(fileItem.get())
                             .fileSize(fileItem.getSize())
                             .mediaType(fileItem.getContentType())
-                            .filePath(fileItem.getName())
+                            .filePath(photoFile.filePath())
                             .petId(petId)
                             .build();
                 }else {
                     photo.setData(fileItem.get());
                     photo.setFileSize(fileItem.getSize());
-                    photo.setFilePath(fileItem.getName());
+                    photo.setFilePath(photoFile.filePath());
                     photo.setMediaType(fileItem.getContentType());
                 }
             }else{
@@ -70,12 +77,12 @@ public class PhotoServiceImpl implements PhotoService {
                         .data(fileItem.get())
                         .fileSize(fileItem.getSize())
                         .mediaType(fileItem.getContentType())
-                        .filePath(fileItem.getName())
+                        .filePath(photoFile.filePath())
                         .chatId(chatId)
                         .build();
                 }else {
                     photo.setData(fileItem.get());
-                    photo.setFilePath(fileItem.getName());
+                    photo.setFilePath(photoFile.filePath());
                     photo.setFileSize(fileItem.getSize());
                     photo.setMediaType(fileItem.getContentType());
                 }
@@ -84,10 +91,5 @@ public class PhotoServiceImpl implements PhotoService {
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }
-
-    private String getExtensions(String fileName) {
-        logger.info("Was invoked method for get extensions of avatar");
-        return fileName.substring(fileName.lastIndexOf(".") + 1);
     }
 }
