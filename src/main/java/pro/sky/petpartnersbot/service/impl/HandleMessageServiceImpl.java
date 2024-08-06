@@ -664,11 +664,13 @@ public class HandleMessageServiceImpl implements HandleMessageService {
                     var mesPhoto = update.message().photo();
                     var mesFile = update.message().document();
 
-                    String fileId;
+                    String fileId = "";
                     if (mesPhoto!=null){
                         fileId = mesPhoto[mesPhoto.length-1].fileId();
-                    }else{
+                    }else if (mesFile!=null){
                         fileId = mesFile.fileId();
+                    }else{
+                        switchFunc(prevPos, user, update, chatId, userPos);
                     }
                     GetFile getFileRequest = new GetFile(fileId);
                     GetFileResponse getFileResponse = bot.execute(getFileRequest);
@@ -688,11 +690,13 @@ public class HandleMessageServiceImpl implements HandleMessageService {
                     var mesPhoto = update.message().photo();
                     var mesFile = update.message().document();
 
-                    String fileId;
+                    String fileId = "";
                     if (mesPhoto!=null){
                         fileId = mesPhoto[mesPhoto.length-1].fileId();
-                    }else{
+                    }else if (mesFile!=null){
                         fileId = mesFile.fileId();
+                    }else{
+                        switchFunc(prevPos, user, update, chatId, userPos);
                     }
                     GetFile getFileRequest = new GetFile(fileId);
                     GetFileResponse getFileResponse = bot.execute(getFileRequest);
