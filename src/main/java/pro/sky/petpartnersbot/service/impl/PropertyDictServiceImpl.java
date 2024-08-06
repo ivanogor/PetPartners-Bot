@@ -51,4 +51,8 @@ public class PropertyDictServiceImpl implements PropertyDictService {
     public List<PropertyDict> findFilledByChatIdAndEntityId(Long entityId, Long chatId) {
         return repository.getChatIdFilled(entityId, chatId);
     }
+
+    public List<PropertyDict> findFilledByEntityIdAndPetId(Long entityId, Long petId) {
+        return repository.getFilledByEntityIdAndPetId(entityId, petId);
+    }
 }

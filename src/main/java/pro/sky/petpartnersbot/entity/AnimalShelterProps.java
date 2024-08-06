@@ -39,4 +39,7 @@ public class AnimalShelterProps {
 
     @Column(name = "date_to")
     private LocalDateTime dateTo;
+
+    @Column(name = "pet_id")
+    private Long petId;
 }

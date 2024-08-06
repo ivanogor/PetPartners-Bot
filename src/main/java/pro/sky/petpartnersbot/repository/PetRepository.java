@@ -16,5 +16,5 @@ public interface PetRepository extends JpaRepository<Pet,Long> {
                     "and COALESCE(p.date_to,CURRENT_DATE+1)>CURRENT_TIMESTAMP", nativeQuery = true)
     List<Pet> getAllByChatId(Long chat_id);
 
-    Pet findByPetIdAndChatId(Long petId,Long chatId);
+    Pet findByPetId(Long petId);
 }

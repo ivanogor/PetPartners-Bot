@@ -24,7 +24,7 @@ public class PetServiceImpl implements PetServise {
         repository.save(pet);
     }
 
-    public Pet findPetBypetIdOrName(Long petId, Long chatId){
-        return repository.findByPetIdAndChatId(petId,chatId);
+    public Pet findPetBypetId(Long petId){
+        return repository.findByPetId(petId);
     }
 }
