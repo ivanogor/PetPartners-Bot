@@ -368,8 +368,13 @@ public class HandleMessageServiceImpl implements HandleMessageService {
                 checkResponse(response);
             }
             case "Удалить питомца" ->{
-                Long petId =  Long.parseLong(pos.substring(pos.indexOf("(")+1,pos.indexOf(")")));
-
+                Long petId = null;
+                try {
+                    petId = Long.parseLong(pos.substring(pos.indexOf("(") + 1, pos.indexOf(")")));
+                }catch(Exception e){
+                    logger.error("Exception occurred: {}, Request Details: param = {} err: {}",
+                            "switchFunc->PetDel",pos,e.getMessage());
+                }
                 Pet pet = petService.findPetBypetIdOrName(petId,chatId);
 
                 pet.setDateTo(LocalDateTime.now());
@@ -397,8 +402,13 @@ public class HandleMessageServiceImpl implements HandleMessageService {
                 saveUserPos(chatId, "Проверить номер", "/start");
             }
             case "Имя питомца" ->{
-                Long petId =  Long.parseLong(pos.substring(pos.indexOf("(")+1,pos.indexOf(")")));
-
+                Long petId = null;
+                try {
+                    petId = Long.parseLong(pos.substring(pos.indexOf("(") + 1, pos.indexOf(")")));
+                }catch(Exception e){
+                    logger.error("Exception occurred: {}, Request Details: param = {} err: {}",
+                            "switchFunc->PetName",pos,e.getMessage());
+                }
                 String petName = petService.findPetBypetIdOrName(petId,chatId).getName();
 
                 if (petName == null){
@@ -412,8 +422,13 @@ public class HandleMessageServiceImpl implements HandleMessageService {
                 saveUserPos(chatId,"Имя питомца",pos);
             }
             case "Возраст питомца" ->{
-                Long petId =  Long.parseLong(pos.substring(pos.indexOf("(")+1,pos.indexOf(")")));
-
+                Long petId = null;
+                try {
+                    petId = Long.parseLong(pos.substring(pos.indexOf("(") + 1, pos.indexOf(")")));
+                }catch(Exception e){
+                    logger.error("Exception occurred: {}, Request Details: param = {} err: {}",
+                            "switchFunc->PetAge",pos,e.getMessage());
+                }
                 String petAge = petService.findPetBypetIdOrName(petId,chatId).getAge();
 
                 if (petAge==null){
@@ -469,15 +484,21 @@ public class HandleMessageServiceImpl implements HandleMessageService {
                             response = bot.execute(sendDocument);
                             checkResponse(response);
                         } catch (Exception e) {
-                            e.printStackTrace();
+                            logger.error("Exception occurred: {}, Request Details: chatId = {} err: {}",
+                                    "switchFunc->LoadShemaPhoto",chatId,e.getMessage());
                         }
                     }
                 }
                 saveUserPos(chatId,"Схема проезда","Информация о приюте");
             }
             case "Фото питомца" ->{
-                Long petId =  Long.parseLong(pos.substring(pos.indexOf("(")+1,pos.indexOf(")")));
-
+                Long petId = null;
+                try {
+                    petId = Long.parseLong(pos.substring(pos.indexOf("(") + 1, pos.indexOf(")")));
+                }catch (Exception e){
+                    logger.error("Exception occurred: {}, Request Details: param = {} err: {}",
+                            "switchFunc->PetPhoto",pos,e.getMessage());
+                }
                 Photos photos = photoService.findPhotoByPetId(petId);
 
                 if (photos==null){
@@ -520,14 +541,21 @@ public class HandleMessageServiceImpl implements HandleMessageService {
                             response = bot.execute(sendDocument);
                             checkResponse(response);
                         } catch (Exception e) {
-                            e.printStackTrace();
+                            logger.error("Exception occurred: {}, Request Details: petId = {} err: {}",
+                                    "switchFunc->LoadPetPhoto",petId,e.getMessage());
                         }
                     }
                 }
                 saveUserPos(chatId,"Фото питомца",pos);
             }
             case "Тип питомца" ->{
-                Long petId =  Long.parseLong(pos.substring(pos.indexOf("(")+1,pos.indexOf(")")));
+                Long petId = null;
+                try {
+                    petId = Long.parseLong(pos.substring(pos.indexOf("(") + 1, pos.indexOf(")")));
+                }catch (Exception e){
+                    logger.error("Exception occurred: {}, Request Details: param = {} err: {}",
+                            "switchFunc->PetType",pos,e.getMessage());
+                }
 
                 Pet pet = petService.findPetBypetIdOrName(petId,chatId);
 
@@ -570,21 +598,28 @@ public class HandleMessageServiceImpl implements HandleMessageService {
                 PropertyDict shltProp = propertyDictService.findByNameAndEntity(param, TelegramBotConsts.shelt);
                 PropertyDict petShltProp = propertyDictService.findByNameAndEntity(param, TelegramBotConsts.pet);
                 selectedShlt = userService.findByUserName(param);
-                Long petId;
+                Long petId=null;
                 Pet pet;
                 PetTypeDict petTypeDict = petTypeDictSevice.getTypeByName(param);
                 try{
                     petId =  Long.parseLong(param.substring(param.indexOf("(")+1,param.indexOf(")")));
-                    pet = petService.findPetBypetIdOrName(petId,chatId);
                 }catch (RuntimeException e){
-                    pet = null;
+                    logger.error("Exception occurred: {}, Request Details: param = {} chatId = {} err: {}",
+                            "switchFunc->Default",param,chatId,e.getMessage());
                 }
+                pet = petService.findPetBypetIdOrName(petId,chatId);
                 if (pos.equals("Все питомцы приюта")||pet!=null){
                     getShltPropsMenu(chatId, param,"Все питомцы приюта",TelegramBotConsts.pet);
                 }
                 else if (pos.equals("Имя питомца")){
                     if (Pattern.matches("^[a-zA-Zа-яА-ЯёЁ\\- ]+$", update.message().text())) {
-                        petId = Long.parseLong(prevPos.substring(prevPos.indexOf("(") + 1, prevPos.indexOf(")")));
+                        petId = null;
+                        try{
+                            petId = Long.parseLong(prevPos.substring(prevPos.indexOf("(") + 1, prevPos.indexOf(")")));
+                        }catch (Exception e){
+                            logger.error("Exception occurred: {}, Request Details: param = {} err: {}",
+                                    "switchFunc->PetNameIns",pos,e.getMessage());
+                        }
                         pet = petService.findPetBypetIdOrName(petId, chatId);
                         pet.setName(update.message().text());
                         petService.addPet(pet);
@@ -598,8 +633,13 @@ public class HandleMessageServiceImpl implements HandleMessageService {
                 }
                 else if (pos.equals("Возраст питомца")){
                     if (Pattern.matches("^[a-zA-Zа-яА-ЯёЁ0-9 ]+$", update.message().text())){
-                        petId =  Long.parseLong(prevPos.substring(prevPos.indexOf("(")+1,prevPos.indexOf(")")));
-
+                        petId = null;
+                        try {
+                            petId = Long.parseLong(prevPos.substring(prevPos.indexOf("(") + 1, prevPos.indexOf(")")));
+                        }catch(Exception e){
+                            logger.error("Exception occurred: {}, Request Details: param = {} err: {}",
+                                    "switchFunc->PetAgeIns",prevPos,e.getMessage());
+                        }
                         pet = petService.findPetBypetIdOrName(petId,chatId);
                         pet.setAge(update.message().text());
                         petService.addPet(pet);
@@ -612,8 +652,13 @@ public class HandleMessageServiceImpl implements HandleMessageService {
                     }
                 }
                 else if (pos.equals("Фото питомца")){
-                    petId =  Long.parseLong(prevPos.substring(prevPos.indexOf("(")+1,prevPos.indexOf(")")));
-
+                    petId = null;
+                    try {
+                        petId = Long.parseLong(prevPos.substring(prevPos.indexOf("(") + 1, prevPos.indexOf(")")));
+                    }catch(Exception e){
+                        logger.error("Exception occurred: {}, Request Details: param = {} err: {}",
+                                "switchFunc->PetPhotoIns",prevPos,e.getMessage());
+                    }
                     pet = petService.findPetBypetIdOrName(petId,chatId);
 
                     var mesPhoto = update.message().photo();
@@ -632,7 +677,8 @@ public class HandleMessageServiceImpl implements HandleMessageService {
                         try {
                             photoService.uploadPhoto(petId, null, file, bot.getToken());
                         } catch (IOException e) {
-                            throw new RuntimeException();
+                            logger.error("Exception occurred: {}, Request Details: petId = {} chatId = {} err: {}",
+                                    "uploadPetPhoto",petId,null,e.getMessage());
                         }
                     }
                     getShltPropsMenu(chatId, pet.getName() + "(" + petId + ")", "Все питомцы приюта", TelegramBotConsts.pet);
@@ -655,7 +701,8 @@ public class HandleMessageServiceImpl implements HandleMessageService {
                         try {
                             photoService.uploadPhoto(null, chatId, file, bot.getToken());
                         } catch (IOException e) {
-                            throw new RuntimeException();
+                            logger.error("Exception occurred: {}, Request Details: petId = {} chatId = {} err: {}",
+                                    "uploadShemaPhoto",null,chatId,e.getMessage());
                         }
                     }
                     switchFunc(prevPos, user, update, chatId, userPos);
@@ -672,8 +719,13 @@ public class HandleMessageServiceImpl implements HandleMessageService {
                         saveUserPos(chatId, "Проверить номер", "/start");
                     }
                 } else if (petTypeDict!=null) {
-                    petId =  Long.parseLong(prevPos.substring(prevPos.indexOf("(")+1,prevPos.indexOf(")")));
-
+                    petId = null;
+                    try {
+                        petId = Long.parseLong(prevPos.substring(prevPos.indexOf("(") + 1, prevPos.indexOf(")")));
+                    }catch(Exception e){
+                        logger.error("Exception occurred: {}, Request Details: param = {} err: {}",
+                                "switchFunc->PetTypeIns",prevPos,e.getMessage());
+                    }
                     pet = petService.findPetBypetIdOrName(petId,chatId);
                     pet.setPetTypeId(petTypeDict.getPetTypeId());
                     petService.addPet(pet);
@@ -744,7 +796,13 @@ public class HandleMessageServiceImpl implements HandleMessageService {
                         animalShelterPropsService.addShelterProp(animalShelterProps);
                         getShltPropsMenu(chatId,"Информация о приюте","/start",TelegramBotConsts.shelt);
                     } else if (petShltProp!=null) {
-                        petId =  Long.parseLong(prevPos.substring(prevPos.indexOf("(")+1,prevPos.indexOf(")")));
+                        petId = null;
+                        try {
+                            petId = Long.parseLong(prevPos.substring(prevPos.indexOf("(") + 1, prevPos.indexOf(")")));
+                        }catch (Exception e){
+                            logger.error("Exception occurred: {}, Request Details: param = {} err: {}",
+                                    "switchFunc->petShltProp",prevPos,e.getMessage());
+                        }
                         pet = petService.findPetBypetIdOrName(petId,chatId);
                         animalShelterProps = animalShelterPropsService.getUserProp(petShltProp.getPropId(),chatId);
                         if (animalShelterProps!=null){

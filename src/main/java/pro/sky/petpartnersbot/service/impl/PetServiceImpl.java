@@ -16,8 +16,8 @@ public class PetServiceImpl implements PetServise {
     private final Logger logger = LoggerFactory.getLogger(PetServiceImpl.class);
     private final PetRepository repository;
 
-    public List<Pet> getAllShltPets(Long chat_id){
-        return repository.getAllByChatId(chat_id);
+    public List<Pet> getAllShltPets(Long chatId){
+        return repository.getAllByChatId(chatId);
     }
 
     public void addPet(Pet pet){
