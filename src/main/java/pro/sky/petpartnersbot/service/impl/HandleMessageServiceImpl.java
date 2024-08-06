@@ -176,8 +176,7 @@ public class HandleMessageServiceImpl implements HandleMessageService {
                 propsKeyboard.addRow(new KeyboardButton(shlt.getUserName()));
             }
 
-            propsKeyboard.addRow(new KeyboardButton("Питомцы"))
-                    .addRow(new KeyboardButton("Удалить учетную запись"));
+            propsKeyboard.addRow(new KeyboardButton("Удалить учетную запись"));
             message = new SendMessage(chatId, messageText).replyMarkup(propsKeyboard);
             saveUserPos(chatId, pos, pos);
         }
@@ -204,9 +203,10 @@ public class HandleMessageServiceImpl implements HandleMessageService {
         for (Pet shltPet:shltPetList){
             propsKeyboard.addRow(new KeyboardButton(shltPet.getName())) ;
         }
-
-        propsKeyboard.addRow(new KeyboardButton("Добавить питомца"))
-                .addRow(new KeyboardButton("Назад"));
+        if (user.getEntityId()==TelegramBotConsts.shelt) {
+            propsKeyboard.addRow(new KeyboardButton("Добавить питомца"));
+        }
+        propsKeyboard.addRow(new KeyboardButton("Назад"));
         message = new SendMessage(user.getChatId(), messageText).replyMarkup(propsKeyboard);
         saveUserPos(user.getChatId(),"Все питомцы приюта",pos);
 
