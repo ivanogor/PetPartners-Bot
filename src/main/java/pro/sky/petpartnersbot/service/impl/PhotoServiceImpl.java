@@ -89,7 +89,8 @@ public class PhotoServiceImpl implements PhotoService {
             }
             repository.save(photo);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Exception occurred: {}, Request Details: petId = {} chatId = {} err: {}",
+                    "uploadPhoto",petId,chatId,e.getMessage());
         }
     }
 }

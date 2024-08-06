@@ -44,11 +44,11 @@ public class PropertyDictServiceImpl implements PropertyDictService {
     /**
      * Находит список заполненных свойств словаря по идентификатору сущности и идентификатору чата.
      *
-     * @param entity_id Идентификатор сущности.
-     * @param chat_id   Идентификатор чата.
+     * @param chatId Идентификатор сущности.
+     * @param chatId   Идентификатор чата.
      * @return Список объектов PropertyDict, соответствующих заданным идентификаторам сущности и чата.
      */
-    public List<PropertyDict> findFilledByChatIdAndEntityId(Long entity_id, Long chat_id) {
-        return repository.getChatIdFilled(entity_id, chat_id);
+    public List<PropertyDict> findFilledByChatIdAndEntityId(Long entityId, Long chatId) {
+        return repository.getChatIdFilled(entityId, chatId);
     }
 }
