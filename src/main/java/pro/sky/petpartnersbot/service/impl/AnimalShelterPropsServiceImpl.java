@@ -28,6 +28,11 @@ public class AnimalShelterPropsServiceImpl {
         return animalShelterPropsRepository.getUserProp(propId, animalShelterId);
     }
 
+    public AnimalShelterProps getPetProp(Long propId, Long petId) {
+        logger.info("Was invoked getVolunteerChat method");
+        return animalShelterPropsRepository.getPetProp(propId, petId);
+    }
+
     /**
      * Добавляет новое свойство приюта для животных.
      *

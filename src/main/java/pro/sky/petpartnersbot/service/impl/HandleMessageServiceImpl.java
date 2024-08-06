@@ -92,15 +92,30 @@ public class HandleMessageServiceImpl implements HandleMessageService {
     /**
      * Получает меню свойств приюта для животных.
      *
-     * @param chatId Идентификатор чата.
+     * @param user   Сущность юзера.
      * @param pos    Текущая позиция пользователя.
      */
-    private void getShltPropsMenu(Long chatId, String pos,String prevPos,Long entityId) {
+    private void getShltPropsMenu(User user, String pos,String prevPos,Long entityId) {
         SendMessage message;
         SendResponse response;
-        List<PropertyDict> shltProps = propertyDictService.findByEntity(entityId);
-        if (shltProps.isEmpty()) {
-            message = new SendMessage(chatId, "Действующих разделов о приюте " +
+        List<PropertyDict> shltProps;
+
+        Long petId = null;
+        try {
+            petId = Long.parseLong(pos.substring(pos.indexOf("(") + 1, pos.indexOf(")")));
+        }catch(Exception e){
+            logger.error("Exception occurred: {}, Request Details: param = {} err: {}",
+                    "switchFunc->PetDel",pos,e.getMessage());
+        }
+
+        if (user.getShlId()==null){
+            shltProps = propertyDictService.findByEntity(entityId);
+        }else{
+            shltProps = propertyDictService.findFilledByEntityIdAndPetId(entityId, petId);
+        }
+
+        if (shltProps.isEmpty()&&entityId == TelegramBotConsts.shelt) {
+            message = new SendMessage(user.getChatId(), "Действующих разделов о приюте " +
                     "не найдено свяжитесь с администратором бота").replyMarkup(new ReplyKeyboardMarkup("Обновить").resizeKeyboard(true)
                     .oneTimeKeyboard(false));
         } else {
@@ -119,17 +134,18 @@ public class HandleMessageServiceImpl implements HandleMessageService {
                         .addRow(new KeyboardButton("Удалить учетную запись"));
             }else{
                 messageText = messageService.findById("showPetsProps").getText();
-
                 propsKeyboard.addRow(new KeyboardButton("Имя питомца"))
                         .addRow(new KeyboardButton("Возраст питомца"))
                         .addRow(new KeyboardButton("Тип питомца"))
-                        .addRow(new KeyboardButton("Фото питомца"))
-                        .addRow(new KeyboardButton("Удалить питомца"))
-                        .addRow(new KeyboardButton("Назад"));
+                        .addRow(new KeyboardButton("Фото питомца"));
+                if (user.getEntityId() == TelegramBotConsts.shelt) {
+                    propsKeyboard.addRow(new KeyboardButton("Удалить питомца"));
+                }
+                propsKeyboard.addRow(new KeyboardButton("Назад"));
             }
-            message = new SendMessage(chatId, messageText).replyMarkup(propsKeyboard);
+            message = new SendMessage(user.getChatId(), messageText).replyMarkup(propsKeyboard);
 
-            saveUserPos(chatId,pos,prevPos);
+            saveUserPos(user.getChatId(),pos,prevPos);
         }
 
         response = bot.execute(message);
@@ -170,11 +186,15 @@ public class HandleMessageServiceImpl implements HandleMessageService {
         checkResponse(response);
     }
 
-
-    private void getShltPetMenu(Long chatId,String pos){
+    private void getShltPetMenu(User user,String pos){
         SendMessage message;
         SendResponse response;
-        List<Pet> shltPetList = petService.getAllShltPets(chatId);
+        List<Pet> shltPetList;
+        if (user.getShlId() == null){
+            shltPetList = petService.getAllShltPets(user.getChatId());
+        }else{
+            shltPetList = petService.getAllShltPets(user.getShlId());
+        }
 
         String messageText = messageService.findById("showShltPets").getText();
 
@@ -187,8 +207,8 @@ public class HandleMessageServiceImpl implements HandleMessageService {
 
         propsKeyboard.addRow(new KeyboardButton("Добавить питомца"))
                 .addRow(new KeyboardButton("Назад"));
-        message = new SendMessage(chatId, messageText).replyMarkup(propsKeyboard);
-        saveUserPos(chatId,"Все питомцы приюта",pos);
+        message = new SendMessage(user.getChatId(), messageText).replyMarkup(propsKeyboard);
+        saveUserPos(user.getChatId(),"Все питомцы приюта",pos);
 
         //Проверка выполнения отправки сообщения
         response = bot.execute(message);
@@ -221,6 +241,8 @@ public class HandleMessageServiceImpl implements HandleMessageService {
             }
 
             propsKeyboard
+                    .addRow(new KeyboardButton("Все питомцы приюта"))
+                    .addRow(new KeyboardButton("Схема проезда"))
                     .addRow(new KeyboardButton("Мой номер телефона"))
                     .addRow(new KeyboardButton("Позвать волонтера"))
                     .addRow(new KeyboardButton("Выбрать другой приют"))
@@ -318,7 +340,7 @@ public class HandleMessageServiceImpl implements HandleMessageService {
                 checkResponse(response);
             }
             case "Информация о приюте" -> {
-                getShltPropsMenu(chatId,"Информация о приюте","/start",TelegramBotConsts.shelt);
+                getShltPropsMenu(user,"Информация о приюте","/start",TelegramBotConsts.shelt);
             }
             case "Добавить питомца" -> {
                 Pet newPet = Pet.builder()
@@ -326,7 +348,7 @@ public class HandleMessageServiceImpl implements HandleMessageService {
                         .entityId(TelegramBotConsts.pet)
                         .build();
                 petService.addPet(newPet);
-                getShltPropsMenu(chatId, String.valueOf(newPet.getPetId()),"Все питомцы приюта",TelegramBotConsts.pet);
+                getShltPropsMenu(user, "("+String.valueOf(newPet.getPetId())+")","Все питомцы приюта",TelegramBotConsts.pet);
             }
             case "Клиент" -> {
                 User newUser = User.builder()
@@ -338,7 +360,7 @@ public class HandleMessageServiceImpl implements HandleMessageService {
                 getClientMenu(chatId, "/start");
             }
             case "Все питомцы приюта" -> {
-                getShltPetMenu(chatId,"/start");
+                getShltPetMenu(user,"/start");
             }
             case "Позвать волонтера" -> {
                 AnimalShelterProps prop = animalShelterPropsService.getUserProp(TelegramBotConsts.shltVol, user.getShlId());
@@ -375,7 +397,7 @@ public class HandleMessageServiceImpl implements HandleMessageService {
                     logger.error("Exception occurred: {}, Request Details: param = {} err: {}",
                             "switchFunc->PetDel",pos,e.getMessage());
                 }
-                Pet pet = petService.findPetBypetIdOrName(petId,chatId);
+                Pet pet = petService.findPetBypetId(petId);
 
                 pet.setDateTo(LocalDateTime.now());
                 petService.addPet(pet);
@@ -409,17 +431,24 @@ public class HandleMessageServiceImpl implements HandleMessageService {
                     logger.error("Exception occurred: {}, Request Details: param = {} err: {}",
                             "switchFunc->PetName",pos,e.getMessage());
                 }
-                String petName = petService.findPetBypetIdOrName(petId,chatId).getName();
+                String petName = petService.findPetBypetId(petId).getName();
 
                 if (petName == null){
                     petName="";
                 }
-
-                message = new SendMessage(chatId, "Вы можете ввести новое имя питомца\n" +
-                        "Текущий имя: "+petName).replyMarkup(KeyboardsForAnswer.RETURN_KEYBOARD);
+                if (user.getEntityId()==TelegramBotConsts.shelt) {
+                    message = new SendMessage(chatId, "Вы можете ввести новое имя питомца\n" +
+                            "Текущий имя: " + petName).replyMarkup(KeyboardsForAnswer.RETURN_KEYBOARD);
+                    saveUserPos(chatId,"Имя питомца",pos);
+                }else{
+                    if (!petName.equals("")){
+                        message = new SendMessage(chatId, petName);
+                    }else{
+                        message = new SendMessage(chatId, "Информация отсутсвует");
+                    }
+                }
                 response = bot.execute(message);
                 checkResponse(response);
-                saveUserPos(chatId,"Имя питомца",pos);
             }
             case "Возраст питомца" ->{
                 Long petId = null;
@@ -429,37 +458,59 @@ public class HandleMessageServiceImpl implements HandleMessageService {
                     logger.error("Exception occurred: {}, Request Details: param = {} err: {}",
                             "switchFunc->PetAge",pos,e.getMessage());
                 }
-                String petAge = petService.findPetBypetIdOrName(petId,chatId).getAge();
+                String petAge = petService.findPetBypetId(petId).getAge();
 
                 if (petAge==null){
                     petAge = "";
                 }
+                if (user.getEntityId()==TelegramBotConsts.shelt) {
+                    message = new SendMessage(chatId, "Вы можете ввести возраст питомца\n" +
+                            "Текущий возраст: "+petAge).replyMarkup(KeyboardsForAnswer.RETURN_KEYBOARD);
+                    saveUserPos(chatId,"Имя питомца",pos);
+                }else{
+                    if (!petAge.equals("")){
+                        message = new SendMessage(chatId, petAge);
+                    }else{
+                        message = new SendMessage(chatId, "Информация отсутсвует");
+                    }
+                }
 
-                message = new SendMessage(chatId, "Вы можете ввести возраст питомца\n" +
-                        "Текущий возраст: "+petAge).replyMarkup(KeyboardsForAnswer.RETURN_KEYBOARD);
                 response = bot.execute(message);
                 checkResponse(response);
-                saveUserPos(chatId,"Возраст питомца",pos);
             }
             case "Схема проезда" ->{
                 Photos photos = photoService.findPhotoByChatId(chatId);
 
                 if (photos==null){
-                    message = new SendMessage(chatId, "Вы можете добавить схему проезда\n" +
-                            "Текущее фото: ").replyMarkup(KeyboardsForAnswer.RETURN_KEYBOARD);
+                    if (user.getEntityId()==TelegramBotConsts.shelt) {
+                        message = new SendMessage(chatId, "Вы можете добавить схему проезда\n" +
+                                "Текущее фото: ").replyMarkup(KeyboardsForAnswer.RETURN_KEYBOARD);
+                    }else{
+                        message = new SendMessage(chatId, "Схема проезда ещё не добавлена");
+                    }
                     response = bot.execute(message);
                     checkResponse(response);
                 }else {
                     if (Pattern.matches("^.*\\.gif$", photos.getFilePath())){
-                        SendAnimation animation = new SendAnimation(chatId,photos.getData())
-                                .caption("Вы можете добавить/обновить схему проезда\n")
-                                .replyMarkup(KeyboardsForAnswer.RETURN_KEYBOARD);
+                        SendAnimation animation;
+                        if (user.getEntityId()==TelegramBotConsts.shelt) {
+                            animation = new SendAnimation(chatId, photos.getData())
+                                    .caption("Вы можете добавить/обновить схему проезда\n")
+                                    .replyMarkup(KeyboardsForAnswer.RETURN_KEYBOARD);
+                        }else{
+                            animation = new SendAnimation(chatId, photos.getData());
+                        }
                         response = bot.execute(animation);
                         checkResponse(response);
                     }else if (Pattern.matches("^(?i).*\\.(jpg|jpeg|png|gif|bmp|tiff|webp|svg)$", photos.getFilePath())){
-                        SendPhoto photoMessage = new SendPhoto(chatId, photos.getData())
-                                .caption("Вы можете добавить/обновить схему проезда\n")
-                                .replyMarkup(KeyboardsForAnswer.RETURN_KEYBOARD);
+                        SendPhoto photoMessage;
+                        if (user.getEntityId()==TelegramBotConsts.shelt) {
+                            photoMessage = new SendPhoto(chatId, photos.getData())
+                                    .caption("Вы можете добавить/обновить схему проезда\n")
+                                    .replyMarkup(KeyboardsForAnswer.RETURN_KEYBOARD);
+                        }else{
+                            photoMessage = new SendPhoto(chatId, photos.getData());
+                        }
                         response = bot.execute(photoMessage);
                         checkResponse(response);
                     }else{
@@ -478,9 +529,13 @@ public class HandleMessageServiceImpl implements HandleMessageService {
                             fileItem.getOutputStream().write(Files.readAllBytes(tempFile));
 
                             java.io.File newFile = new java.io.File(tempFile.toAbsolutePath().toString());
-                            sendDocument = new SendDocument(chatId, newFile)
-                                    .caption("Вы можете добавить/обновить схему проезда\n")
-                                    .replyMarkup(KeyboardsForAnswer.RETURN_KEYBOARD);
+                            if (user.getEntityId()==TelegramBotConsts.shelt) {
+                                sendDocument = new SendDocument(chatId, newFile)
+                                        .caption("Вы можете добавить/обновить схему проезда\n")
+                                        .replyMarkup(KeyboardsForAnswer.RETURN_KEYBOARD);
+                            }else{
+                                sendDocument = new SendDocument(chatId, newFile);
+                            }
                             response = bot.execute(sendDocument);
                             checkResponse(response);
                         } catch (Exception e) {
@@ -489,7 +544,9 @@ public class HandleMessageServiceImpl implements HandleMessageService {
                         }
                     }
                 }
-                saveUserPos(chatId,"Схема проезда","Информация о приюте");
+                if (user.getEntityId()==TelegramBotConsts.shelt) {
+                    saveUserPos(chatId, "Схема проезда", "Информация о приюте");
+                }
             }
             case "Фото питомца" ->{
                 Long petId = null;
@@ -502,21 +559,35 @@ public class HandleMessageServiceImpl implements HandleMessageService {
                 Photos photos = photoService.findPhotoByPetId(petId);
 
                 if (photos==null){
-                    message = new SendMessage(chatId, "Вы можете добавить фото питомца\n" +
-                        "Текущее фото: ").replyMarkup(KeyboardsForAnswer.RETURN_KEYBOARD);
+                    if (user.getEntityId()==TelegramBotConsts.shelt) {
+                        message = new SendMessage(chatId, "Вы можете добавить фото питомца\n" +
+                                "Текущее фото: ").replyMarkup(KeyboardsForAnswer.RETURN_KEYBOARD);
+                    }else{
+                        message = new SendMessage(chatId, "Фото питомца ещё не добавлено");
+                    }
                     response = bot.execute(message);
                     checkResponse(response);
                 }else {
                     if (Pattern.matches("^.*\\.gif$", photos.getFilePath())){
-                        SendAnimation animation = new SendAnimation(chatId,photos.getData())
+                        SendAnimation animation;
+                        if (user.getEntityId()==TelegramBotConsts.shelt) {
+                            animation = new SendAnimation(chatId,photos.getData())
                                 .caption("Вы можете добавить/обновить фото питомца\n")
                                 .replyMarkup(KeyboardsForAnswer.RETURN_KEYBOARD);
+                        }else{
+                            animation = new SendAnimation(chatId,photos.getData());
+                        }
                         response = bot.execute(animation);
                         checkResponse(response);
                     }else if (Pattern.matches("^(?i).*\\.(jpg|jpeg|png|gif|bmp|tiff|webp|svg)$", photos.getFilePath())){
-                        SendPhoto photoMessage = new SendPhoto(chatId, photos.getData())
-                                .caption("Вы можете добавить/обновить фото питомца\n")
-                                .replyMarkup(KeyboardsForAnswer.RETURN_KEYBOARD);
+                        SendPhoto photoMessage;
+                        if (user.getEntityId()==TelegramBotConsts.shelt) {
+                            photoMessage = new SendPhoto(chatId,photos.getData())
+                                    .caption("Вы можете добавить/обновить фото питомца\n")
+                                    .replyMarkup(KeyboardsForAnswer.RETURN_KEYBOARD);
+                        }else{
+                            photoMessage = new SendPhoto(chatId,photos.getData());
+                        }
                         response = bot.execute(photoMessage);
                         checkResponse(response);
                     }else{
@@ -535,9 +606,13 @@ public class HandleMessageServiceImpl implements HandleMessageService {
                             fileItem.getOutputStream().write(Files.readAllBytes(tempFile));
 
                             java.io.File newFile = new java.io.File(tempFile.toAbsolutePath().toString());
-                            sendDocument = new SendDocument(chatId, newFile)
-                                    .caption("Вы можете добавить/обновить фото питомца\n")
-                                    .replyMarkup(KeyboardsForAnswer.RETURN_KEYBOARD);
+                            if (user.getEntityId()==TelegramBotConsts.shelt) {
+                                sendDocument = new SendDocument(chatId, newFile)
+                                        .caption("Вы можете добавить/обновить фото питомца\n")
+                                        .replyMarkup(KeyboardsForAnswer.RETURN_KEYBOARD);
+                            }else{
+                                sendDocument = new SendDocument(chatId, newFile);
+                            }
                             response = bot.execute(sendDocument);
                             checkResponse(response);
                         } catch (Exception e) {
@@ -546,7 +621,9 @@ public class HandleMessageServiceImpl implements HandleMessageService {
                         }
                     }
                 }
-                saveUserPos(chatId,"Фото питомца",pos);
+                if (user.getEntityId()==TelegramBotConsts.shelt) {
+                    saveUserPos(chatId, "Фото питомца", pos);
+                }
             }
             case "Тип питомца" ->{
                 Long petId = null;
@@ -557,7 +634,7 @@ public class HandleMessageServiceImpl implements HandleMessageService {
                             "switchFunc->PetType",pos,e.getMessage());
                 }
 
-                Pet pet = petService.findPetBypetIdOrName(petId,chatId);
+                Pet pet = petService.findPetBypetId(petId);
 
                 PetTypeDict petTypeDict = petTypeDictSevice.getTypeById(pet.getPetTypeId());
 
@@ -570,24 +647,36 @@ public class HandleMessageServiceImpl implements HandleMessageService {
                 List<PetTypeDict> petTypeDictLst = petTypeDictSevice.getAllActiveTypes();
 
                 if (petTypeDictLst.isEmpty()){
-                    String messageText = EmojiParser.parseToUnicode(messageService.findById("noPetDictTypes").getText());
-                    message = new SendMessage(chatId, messageText).replyMarkup(KeyboardsForAnswer.NO_INFO_KEYBOARD_CLNT);
-                    saveUserPos(chatId,"Тип питомца",pos);
+                    if(user.getEntityId()==TelegramBotConsts.shelt) {
+                        String messageText = EmojiParser.parseToUnicode(messageService.findById("noPetDictTypes").getText());
+                        message = new SendMessage(chatId, messageText).replyMarkup(KeyboardsForAnswer.NO_INFO_KEYBOARD_CLNT);
+                        saveUserPos(chatId, "Тип питомца", pos);
+                    }else{
+                        message = new SendMessage(chatId, "Информация не указана");
+                    }
                 }
                 else {
-                    ReplyKeyboardMarkup propsKeyboard = new ReplyKeyboardMarkup("").resizeKeyboard(true)
-                            .oneTimeKeyboard(false);
+                    if(user.getEntityId()==TelegramBotConsts.shelt) {
+                        ReplyKeyboardMarkup propsKeyboard = new ReplyKeyboardMarkup("").resizeKeyboard(true)
+                                .oneTimeKeyboard(false);
 
-                    for (PetTypeDict type : petTypeDictLst) {
-                        propsKeyboard.addRow(new KeyboardButton(type.getName()));
+                        for (PetTypeDict type : petTypeDictLst) {
+                            propsKeyboard.addRow(new KeyboardButton(type.getName()));
+                        }
+                        propsKeyboard.addRow(new KeyboardButton("Назад"));
+                        message = new SendMessage(chatId, "Выберите тип питомца\n" +
+                                "Текущий тип: " + typeName).replyMarkup(propsKeyboard);
+                        saveUserPos(chatId,"Тип питомца",pos);
+                    }else{
+                        if (!typeName.equals("")) {
+                            message = new SendMessage(chatId, typeName);
+                        }else{
+                            message = new SendMessage(chatId, "Информация отсутсвует");
+                        }
                     }
-                    propsKeyboard.addRow(new KeyboardButton("Назад"));
-                    message = new SendMessage(chatId, "Выберите тип питомца\n" +
-                            "Текущий тип: "+typeName).replyMarkup(propsKeyboard);
                 }
                 response = bot.execute(message);
                 checkResponse(response);
-                saveUserPos(chatId,"Тип питомца",pos);
             }
             case "Назад","Обновить" ->{
                 switchFunc(prevPos,user,update,chatId,userPos);
@@ -607,9 +696,9 @@ public class HandleMessageServiceImpl implements HandleMessageService {
                     logger.error("Exception occurred: {}, Request Details: param = {} chatId = {} err: {}",
                             "switchFunc->Default",param,chatId,e.getMessage());
                 }
-                pet = petService.findPetBypetIdOrName(petId,chatId);
+                pet = petService.findPetBypetId(petId);
                 if (pos.equals("Все питомцы приюта")||pet!=null){
-                    getShltPropsMenu(chatId, param,"Все питомцы приюта",TelegramBotConsts.pet);
+                    getShltPropsMenu(user, param,"Все питомцы приюта",TelegramBotConsts.pet);
                 }
                 else if (pos.equals("Имя питомца")){
                     if (Pattern.matches("^[a-zA-Zа-яА-ЯёЁ\\- ]+$", update.message().text())) {
@@ -620,11 +709,11 @@ public class HandleMessageServiceImpl implements HandleMessageService {
                             logger.error("Exception occurred: {}, Request Details: param = {} err: {}",
                                     "switchFunc->PetNameIns",pos,e.getMessage());
                         }
-                        pet = petService.findPetBypetIdOrName(petId, chatId);
+                        pet = petService.findPetBypetId(petId);
                         pet.setName(update.message().text());
                         petService.addPet(pet);
 
-                        getShltPropsMenu(chatId, pet.getName() + "(" + petId + ")", "Все питомцы приюта", TelegramBotConsts.pet);
+                        getShltPropsMenu(user, pet.getName() + "(" + petId + ")", "Все питомцы приюта", TelegramBotConsts.pet);
                     }else {
                         message = new SendMessage(chatId, "Имя содержит недопустимые символы").replyMarkup(KeyboardsForAnswer.RETURN_KEYBOARD);
                         response = bot.execute(message);
@@ -640,10 +729,10 @@ public class HandleMessageServiceImpl implements HandleMessageService {
                             logger.error("Exception occurred: {}, Request Details: param = {} err: {}",
                                     "switchFunc->PetAgeIns",prevPos,e.getMessage());
                         }
-                        pet = petService.findPetBypetIdOrName(petId,chatId);
+                        pet = petService.findPetBypetId(petId);
                         pet.setAge(update.message().text());
                         petService.addPet(pet);
-                        getShltPropsMenu(chatId, pet.getName() + "(" + petId + ")", "Все питомцы приюта", TelegramBotConsts.pet);
+                        getShltPropsMenu(user, pet.getName() + "(" + petId + ")", "Все питомцы приюта", TelegramBotConsts.pet);
                     }
                     else{
                         message = new SendMessage(chatId, "Возраст содержит недопустимые символы").replyMarkup(KeyboardsForAnswer.RETURN_KEYBOARD);
@@ -659,7 +748,7 @@ public class HandleMessageServiceImpl implements HandleMessageService {
                         logger.error("Exception occurred: {}, Request Details: param = {} err: {}",
                                 "switchFunc->PetPhotoIns",prevPos,e.getMessage());
                     }
-                    pet = petService.findPetBypetIdOrName(petId,chatId);
+                    pet = petService.findPetBypetId(petId);
 
                     var mesPhoto = update.message().photo();
                     var mesFile = update.message().document();
@@ -683,7 +772,7 @@ public class HandleMessageServiceImpl implements HandleMessageService {
                                     "uploadPetPhoto",petId,null,e.getMessage());
                         }
                     }
-                    getShltPropsMenu(chatId, pet.getName() + "(" + petId + ")", "Все питомцы приюта", TelegramBotConsts.pet);
+                    getShltPropsMenu(user, pet.getName() + "(" + petId + ")", "Все питомцы приюта", TelegramBotConsts.pet);
 
                 }
                 else if (pos.equals("Схема проезда")){
@@ -730,14 +819,24 @@ public class HandleMessageServiceImpl implements HandleMessageService {
                         logger.error("Exception occurred: {}, Request Details: param = {} err: {}",
                                 "switchFunc->PetTypeIns",prevPos,e.getMessage());
                     }
-                    pet = petService.findPetBypetIdOrName(petId,chatId);
+                    pet = petService.findPetBypetId(petId);
                     pet.setPetTypeId(petTypeDict.getPetTypeId());
                     petService.addPet(pet);
-                    getShltPropsMenu(chatId, pet.getName() + "(" + petId + ")", "Все питомцы приюта", TelegramBotConsts.pet);
+                    getShltPropsMenu(user, pet.getName() + "(" + petId + ")", "Все питомцы приюта", TelegramBotConsts.pet);
                 } else if (shltProp != null){
                     if(user.getEntityId() == TelegramBotConsts.shelt){
                         String nowVal = "";
-                        animalShelterProps = animalShelterPropsService.getUserProp(shltProp.getPropId(), chatId);
+                        try {
+                            petId = Long.parseLong(prevPos.substring(prevPos.indexOf("(") + 1, prevPos.indexOf(")")));
+                        }catch(Exception e){
+                            logger.error("Exception occurred: {}, Request Details: param = {} err: {}",
+                                    "switchFunc->PetTypeIns",prevPos,e.getMessage());
+                        }
+                        if (petId==null) {
+                            animalShelterProps = animalShelterPropsService.getUserProp(shltProp.getPropId(), chatId);
+                        }else{
+                            animalShelterProps = animalShelterPropsService.getPetProp(shltProp.getPropId(),petId);
+                        }
                         if (animalShelterProps != null) {
                             nowVal = animalShelterProps.getPropVal();
                         }
@@ -746,6 +845,7 @@ public class HandleMessageServiceImpl implements HandleMessageService {
                                 .replyMarkup(KeyboardsForAnswer.RETURN_KEYBOARD);
                     } else {
                         String nowVal = "";
+
                         animalShelterProps = animalShelterPropsService.getUserProp(shltProp.getPropId(), user.getShlId());
                         if (animalShelterProps != null) {
                             nowVal = animalShelterProps.getPropVal();
@@ -767,9 +867,20 @@ public class HandleMessageServiceImpl implements HandleMessageService {
                         message = new SendMessage(chatId, "Введите информацию \""+petShltProp.getName()+"\".\n" +
                                 "Текущая информация: "+nowVal)
                                 .replyMarkup(KeyboardsForAnswer.RETURN_KEYBOARD);
+                        saveUserPos(chatId,param,pos);
                     }else{
                         String nowVal = "";
-                        animalShelterProps = animalShelterPropsService.getUserProp(petShltProp.getPropId(),user.getShlId());
+                        try {
+                            petId = Long.parseLong(pos.substring(pos.indexOf("(") + 1, pos.indexOf(")")));
+                        }catch(Exception e){
+                            logger.error("Exception occurred: {}, Request Details: param = {} err: {}",
+                                    "switchFunc->PetTypeIns",prevPos,e.getMessage());
+                        }
+                        if (petId==null) {
+                            animalShelterProps = animalShelterPropsService.getUserProp(shltProp.getPropId(), chatId);
+                        }else{
+                            animalShelterProps = animalShelterPropsService.getPetProp(petShltProp.getPropId(),petId);
+                        }
                         if(animalShelterProps!=null){
                             nowVal = animalShelterProps.getPropVal();
                         }
@@ -778,7 +889,7 @@ public class HandleMessageServiceImpl implements HandleMessageService {
 
                     response = bot.execute(message);
                     checkResponse(response);
-                    saveUserPos(chatId,param,pos);
+
                 }else if (selectedShlt != null) {
                     user.setShlId(selectedShlt.getChatId());
                     userService.addUser(user);
@@ -798,7 +909,7 @@ public class HandleMessageServiceImpl implements HandleMessageService {
                                 .propVal(update.message().text())
                                 .build();
                         animalShelterPropsService.addShelterProp(animalShelterProps);
-                        getShltPropsMenu(chatId,"Информация о приюте","/start",TelegramBotConsts.shelt);
+                        getShltPropsMenu(user,"Информация о приюте","/start",TelegramBotConsts.shelt);
                     } else if (petShltProp!=null) {
                         petId = null;
                         try {
@@ -807,7 +918,7 @@ public class HandleMessageServiceImpl implements HandleMessageService {
                             logger.error("Exception occurred: {}, Request Details: param = {} err: {}",
                                     "switchFunc->petShltProp",prevPos,e.getMessage());
                         }
-                        pet = petService.findPetBypetIdOrName(petId,chatId);
+                        pet = petService.findPetBypetId(petId);
                         animalShelterProps = animalShelterPropsService.getUserProp(petShltProp.getPropId(),chatId);
                         if (animalShelterProps!=null){
                             animalShelterProps.setDateTo(LocalDateTime.now());
@@ -817,9 +928,10 @@ public class HandleMessageServiceImpl implements HandleMessageService {
                                 .chatId(chatId)
                                 .propId(petShltProp.getPropId())
                                 .propVal(update.message().text())
+                                .petId(petId)
                                 .build();
                         animalShelterPropsService.addShelterProp(animalShelterProps);
-                        getShltPropsMenu(chatId, pet.getName() + "(" + petId + ")", "Все питомцы приюта", TelegramBotConsts.pet);
+                        getShltPropsMenu(user, pet.getName() + "(" + petId + ")", "Все питомцы приюта", TelegramBotConsts.pet);
                     } else {
                         if (user.getEntityId() == TelegramBotConsts.user) {
                             message = new SendMessage(chatId, "Вы можете позвать волонтера").replyMarkup(KeyboardsForAnswer.SUPPORT_KEYBOARD);

@@ -42,8 +42,8 @@ public interface PropertyDictRepository extends JpaRepository<PropertyDict, Long
     /**
      * Получает список свойств по идентификатору сущности и идентификатору чата, исключая свойства с определенным prop_id.
      *
-     * @param entity_id идентификатор сущности
-     * @param chat_id идентификатор чата
+     * @param entityId идентификатор сущности
+     * @param chatId идентификатор чата
      * @return список объектов PropertyDict, соответствующих заданным идентификаторам сущности и чата
      */
     @Query(value = "select * " +
@@ -58,5 +58,19 @@ public interface PropertyDictRepository extends JpaRepository<PropertyDict, Long
             "and asp.prop_id = pd.prop_id " +
             "and asp.date_from <= CURRENT_TIMESTAMP " +
             "and COALESCE(asp.date_to, CURRENT_DATE + 1) > CURRENT_TIMESTAMP)", nativeQuery = true)
-    List<PropertyDict> getChatIdFilled(Long entity_id, Long chat_id);
+    List<PropertyDict> getChatIdFilled(Long entityId, Long chatId);
+
+    @Query(value = "select * " +
+            "from property_dict pd " +
+            "where pd.entity_id = ?1 " +
+            "and pd.prop_id <> 5 " +
+            "and pd.date_from <= CURRENT_TIMESTAMP " +
+            "and COALESCE(pd.date_to, CURRENT_DATE + 1) > CURRENT_TIMESTAMP " +
+            "and exists(select 1 " +
+            "from animal_shelters_props asp " +
+            "where asp.pet_id = ?2 " +
+            "and asp.prop_id = pd.prop_id " +
+            "and asp.date_from <= CURRENT_TIMESTAMP " +
+            "and COALESCE(asp.date_to, CURRENT_DATE + 1) > CURRENT_TIMESTAMP)", nativeQuery = true)
+    List<PropertyDict> getFilledByEntityIdAndPetId(Long entityId, Long petId);
 }
