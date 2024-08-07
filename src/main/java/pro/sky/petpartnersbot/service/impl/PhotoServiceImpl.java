@@ -19,27 +19,34 @@ import java.nio.file.StandardCopyOption;
 
 import static pro.sky.petpartnersbot.service.utils.MimeTypeByExtention.getMimeType;
 
+/**
+ * Сервис для работы с фотографиями питомцев и чатов.
+ */
 @Service
 @RequiredArgsConstructor
 public class PhotoServiceImpl implements PhotoService {
     private final Logger logger = LoggerFactory.getLogger(PhotoServiceImpl.class);
     private final PhotoRepository repository;
 
+    @Override
     @Transactional
     public Photos findPhotoByPetId (long petId) {
-        logger.info("Was invoked method for get avatar");
+        logger.info("Was invoked findPhotoByPetId method");
         return repository.findByPetId(petId);
     }
 
+    @Override
     @Transactional
     public Photos findPhotoByChatId (long chatId) {
-        logger.info("Was invoked method for get avatar");
+        logger.info("Was invoked findPhotoByChatId method");
         return repository.findByChatId(chatId);
     }
+
+    @Override
     @Transactional
     public void uploadPhoto(Long petId,Long chatId, File photoFile, String token) throws IOException {
         Photos photo;
-        logger.info("Was invoked method for upload photo");
+        logger.info("Was invoked uploadPhoto method");
         DiskFileItem fileItem;
         String fileUrl = String.format("https://api.telegram.org/file/bot%s/%s", token, photoFile.filePath());
         try (InputStream in = new URL(fileUrl).openStream()) {

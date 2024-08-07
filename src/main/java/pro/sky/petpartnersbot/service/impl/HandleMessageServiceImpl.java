@@ -50,16 +50,9 @@ public class HandleMessageServiceImpl implements HandleMessageService {
     private final AnimalShelterPropsServiceImpl animalShelterPropsService;
     private final UserPosServiceImpl userPosService;
     private final PetServiceImpl petService;
-    private final PetTypeDictSeviceImpl petTypeDictSevice;
+    private final PetTypeDictServiceImpl petTypeDictSevice;
     private final PhotoServiceImpl photoService;
 
-    /**
-     * Обрабатывает входящее сообщение от Telegram API.
-     * Если пользователь впервые использует чат, добавляет его в базу данных и переходит к анализу сообщений.
-     * Иначе перенаправляет пользователя к выбору приюта.
-     *
-     * @param update Входящее обновление от Telegram API.
-     */
     @Override
     public void handleMessage(Update update) {
         if (update.message() != null) {
@@ -397,7 +390,7 @@ public class HandleMessageServiceImpl implements HandleMessageService {
                     logger.error("Exception occurred: {}, Request Details: param = {} err: {}",
                             "switchFunc->PetDel",pos,e.getMessage());
                 }
-                Pet pet = petService.findPetBypetId(petId);
+                Pet pet = petService.findPetByPetId(petId);
 
                 pet.setDateTo(LocalDateTime.now());
                 petService.addPet(pet);
@@ -431,7 +424,7 @@ public class HandleMessageServiceImpl implements HandleMessageService {
                     logger.error("Exception occurred: {}, Request Details: param = {} err: {}",
                             "switchFunc->PetName",pos,e.getMessage());
                 }
-                String petName = petService.findPetBypetId(petId).getName();
+                String petName = petService.findPetByPetId(petId).getName();
 
                 if (petName == null){
                     petName="";
@@ -458,7 +451,7 @@ public class HandleMessageServiceImpl implements HandleMessageService {
                     logger.error("Exception occurred: {}, Request Details: param = {} err: {}",
                             "switchFunc->PetAge",pos,e.getMessage());
                 }
-                String petAge = petService.findPetBypetId(petId).getAge();
+                String petAge = petService.findPetByPetId(petId).getAge();
 
                 if (petAge==null){
                     petAge = "";
@@ -634,7 +627,7 @@ public class HandleMessageServiceImpl implements HandleMessageService {
                             "switchFunc->PetType",pos,e.getMessage());
                 }
 
-                Pet pet = petService.findPetBypetId(petId);
+                Pet pet = petService.findPetByPetId(petId);
 
                 PetTypeDict petTypeDict = petTypeDictSevice.getTypeById(pet.getPetTypeId());
 
@@ -696,7 +689,7 @@ public class HandleMessageServiceImpl implements HandleMessageService {
                     logger.error("Exception occurred: {}, Request Details: param = {} chatId = {} err: {}",
                             "switchFunc->Default",param,chatId,e.getMessage());
                 }
-                pet = petService.findPetBypetId(petId);
+                pet = petService.findPetByPetId(petId);
                 if (pos.equals("Все питомцы приюта")||pet!=null){
                     getShltPropsMenu(user, param,"Все питомцы приюта",TelegramBotConsts.pet);
                 }
@@ -709,7 +702,7 @@ public class HandleMessageServiceImpl implements HandleMessageService {
                             logger.error("Exception occurred: {}, Request Details: param = {} err: {}",
                                     "switchFunc->PetNameIns",pos,e.getMessage());
                         }
-                        pet = petService.findPetBypetId(petId);
+                        pet = petService.findPetByPetId(petId);
                         pet.setName(update.message().text());
                         petService.addPet(pet);
 
@@ -729,7 +722,7 @@ public class HandleMessageServiceImpl implements HandleMessageService {
                             logger.error("Exception occurred: {}, Request Details: param = {} err: {}",
                                     "switchFunc->PetAgeIns",prevPos,e.getMessage());
                         }
-                        pet = petService.findPetBypetId(petId);
+                        pet = petService.findPetByPetId(petId);
                         pet.setAge(update.message().text());
                         petService.addPet(pet);
                         getShltPropsMenu(user, pet.getName() + "(" + petId + ")", "Все питомцы приюта", TelegramBotConsts.pet);
@@ -748,7 +741,7 @@ public class HandleMessageServiceImpl implements HandleMessageService {
                         logger.error("Exception occurred: {}, Request Details: param = {} err: {}",
                                 "switchFunc->PetPhotoIns",prevPos,e.getMessage());
                     }
-                    pet = petService.findPetBypetId(petId);
+                    pet = petService.findPetByPetId(petId);
 
                     var mesPhoto = update.message().photo();
                     var mesFile = update.message().document();
@@ -819,7 +812,7 @@ public class HandleMessageServiceImpl implements HandleMessageService {
                         logger.error("Exception occurred: {}, Request Details: param = {} err: {}",
                                 "switchFunc->PetTypeIns",prevPos,e.getMessage());
                     }
-                    pet = petService.findPetBypetId(petId);
+                    pet = petService.findPetByPetId(petId);
                     pet.setPetTypeId(petTypeDict.getPetTypeId());
                     petService.addPet(pet);
                     getShltPropsMenu(user, pet.getName() + "(" + petId + ")", "Все питомцы приюта", TelegramBotConsts.pet);
@@ -918,7 +911,7 @@ public class HandleMessageServiceImpl implements HandleMessageService {
                             logger.error("Exception occurred: {}, Request Details: param = {} err: {}",
                                     "switchFunc->petShltProp",prevPos,e.getMessage());
                         }
-                        pet = petService.findPetBypetId(petId);
+                        pet = petService.findPetByPetId(petId);
                         animalShelterProps = animalShelterPropsService.getUserProp(petShltProp.getPropId(),chatId);
                         if (animalShelterProps!=null){
                             animalShelterProps.setDateTo(LocalDateTime.now());

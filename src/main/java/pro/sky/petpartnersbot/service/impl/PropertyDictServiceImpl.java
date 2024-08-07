@@ -20,39 +20,27 @@ public class PropertyDictServiceImpl implements PropertyDictService {
     private final Logger logger = LoggerFactory.getLogger(PropertyDictServiceImpl.class);
     private final PropertyDictRepository repository;
 
-    /**
-     * Находит список свойств словаря по идентификатору сущности.
-     *
-     * @param id Идентификатор сущности.
-     * @return Список объектов PropertyDict, соответствующих заданному идентификатору сущности.
-     */
+    @Override
     public List<PropertyDict> findByEntity(Long id) {
+        logger.info("Was invoked findByEntity method");
         return repository.getByEntityId(id);
     }
 
-    /**
-     * Находит свойство словаря по имени и идентификатору сущности.
-     *
-     * @param name Имя свойства.
-     * @param id   Идентификатор сущности.
-     * @return Объект PropertyDict, соответствующий заданным имени и идентификатору сущности.
-     */
+    @Override
     public PropertyDict findByNameAndEntity(String name, Long id) {
+        logger.info("Was invoked findByNameAndEntity method");
         return repository.getByNameAndEntityId(name, id);
     }
 
-    /**
-     * Находит список заполненных свойств словаря по идентификатору сущности и идентификатору чата.
-     *
-     * @param chatId Идентификатор сущности.
-     * @param chatId   Идентификатор чата.
-     * @return Список объектов PropertyDict, соответствующих заданным идентификаторам сущности и чата.
-     */
+    @Override
     public List<PropertyDict> findFilledByChatIdAndEntityId(Long entityId, Long chatId) {
+        logger.info("Was invoked findFilledByChatIdAndEntityId method");
         return repository.getChatIdFilled(entityId, chatId);
     }
 
+    @Override
     public List<PropertyDict> findFilledByEntityIdAndPetId(Long entityId, Long petId) {
+        logger.info("Was invoked findFilledByEntityIdAndPetId method");
         return repository.getFilledByEntityIdAndPetId(entityId, petId);
     }
 }
