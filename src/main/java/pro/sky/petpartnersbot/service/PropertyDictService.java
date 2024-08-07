@@ -8,4 +8,5 @@ public interface PropertyDictService {
     List<PropertyDict> findByEntity(Long id);
     PropertyDict findByNameAndEntity(String name,Long id);
     List<PropertyDict> findFilledByChatIdAndEntityId(Long entity_id,Long chat_id);
+    List<PropertyDict> findFilledByEntityIdAndPetId(Long entityId, Long petId);
 }
