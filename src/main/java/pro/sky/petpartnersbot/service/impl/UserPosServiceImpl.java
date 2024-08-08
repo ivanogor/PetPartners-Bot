@@ -8,17 +8,32 @@ import pro.sky.petpartnersbot.entity.UserPos;
 import pro.sky.petpartnersbot.repository.UserPosRepository;
 import pro.sky.petpartnersbot.service.UserPosService;
 
+/**
+ * Сервис для работы с позициями пользователей.
+ * Этот класс отвечает за поиск и сохранение позиций пользователей.
+ */
 @Service
 @RequiredArgsConstructor
 public class UserPosServiceImpl implements UserPosService {
     private final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
     private final UserPosRepository repository;
 
-    public UserPos findByChatId(Long chatId){
+    /**
+     * Находит позицию пользователя по идентификатору чата.
+     *
+     * @param chatId Идентификатор чата.
+     * @return Объект UserPos, соответствующий заданному идентификатору чата.
+     */
+    public UserPos findByChatId(Long chatId) {
         return repository.findByChatId(chatId);
     }
 
-    public void saveUserPos(UserPos userPos){
+    /**
+     * Сохраняет позицию пользователя.
+     *
+     * @param userPos Объект UserPos, который нужно сохранить.
+     */
+    public void saveUserPos(UserPos userPos) {
         repository.save(userPos);
     }
 }

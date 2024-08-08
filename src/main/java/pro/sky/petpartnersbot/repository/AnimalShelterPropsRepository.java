@@ -11,8 +11,8 @@ public interface AnimalShelterPropsRepository extends JpaRepository<AnimalShelte
 /**
      * Получает идентификатор чата волонтеров для указанного свойства и приюта.
      *
-     * @param prop_id идентификатор свойства
-     * @param shelter_id идентификатор приюта
+     * @param propId идентификатор свойства
+     * @param shelterId идентификатор приюта
      * @return идентификатор чата волонтеров
      */
     @Query(value = "select * " +
@@ -21,6 +21,13 @@ public interface AnimalShelterPropsRepository extends JpaRepository<AnimalShelte
                    "and asp.chat_id = ?2 " +
                    "and asp.date_from<=CURRENT_TIMESTAMP " +
                    "and COALESCE(asp.date_to,CURRENT_DATE+1)>CURRENT_TIMESTAMP", nativeQuery = true)
-    AnimalShelterProps getUserProp(Long prop_id,Long shelter_id);
+    AnimalShelterProps getUserProp(Long propId,Long shelterId);
 
+    @Query(value = "select * " +
+            "from animal_shelters_props asp " +
+            "where asp.prop_id = ?1 " +
+            "and asp.pet_id = ?2 " +
+            "and asp.date_from<=CURRENT_TIMESTAMP " +
+            "and COALESCE(asp.date_to,CURRENT_DATE+1)>CURRENT_TIMESTAMP", nativeQuery = true)
+    AnimalShelterProps getPetProp(Long propId,Long petId);
 }

@@ -10,21 +10,49 @@ import pro.sky.petpartnersbot.service.PropertyDictService;
 
 import java.util.List;
 
+/**
+ * Сервис для работы со свойствами словаря.
+ * Этот класс отвечает за поиск свойств словаря по различным критериям.
+ */
 @Service
 @RequiredArgsConstructor
 public class PropertyDictServiceImpl implements PropertyDictService {
     private final Logger logger = LoggerFactory.getLogger(PropertyDictServiceImpl.class);
     private final PropertyDictRepository repository;
 
-    public List<PropertyDict> findByEntity(Long id){
+    /**
+     * Находит список свойств словаря по идентификатору сущности.
+     *
+     * @param id Идентификатор сущности.
+     * @return Список объектов PropertyDict, соответствующих заданному идентификатору сущности.
+     */
+    public List<PropertyDict> findByEntity(Long id) {
         return repository.getByEntityId(id);
     }
 
-    public PropertyDict findByNameAndEntity(String name,Long id){
-        return repository.getByNameAndEntityId(name,id);
+    /**
+     * Находит свойство словаря по имени и идентификатору сущности.
+     *
+     * @param name Имя свойства.
+     * @param id   Идентификатор сущности.
+     * @return Объект PropertyDict, соответствующий заданным имени и идентификатору сущности.
+     */
+    public PropertyDict findByNameAndEntity(String name, Long id) {
+        return repository.getByNameAndEntityId(name, id);
     }
 
-    public List<PropertyDict> findFilledByChatIdAndEntityId(Long entity_id,Long chat_id){
-        return repository.getChatIdFilled(entity_id,chat_id);
+    /**
+     * Находит список заполненных свойств словаря по идентификатору сущности и идентификатору чата.
+     *
+     * @param chatId Идентификатор сущности.
+     * @param chatId   Идентификатор чата.
+     * @return Список объектов PropertyDict, соответствующих заданным идентификаторам сущности и чата.
+     */
+    public List<PropertyDict> findFilledByChatIdAndEntityId(Long entityId, Long chatId) {
+        return repository.getChatIdFilled(entityId, chatId);
+    }
+
+    public List<PropertyDict> findFilledByEntityIdAndPetId(Long entityId, Long petId) {
+        return repository.getFilledByEntityIdAndPetId(entityId, petId);
     }
 }

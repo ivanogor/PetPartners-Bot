@@ -30,9 +30,6 @@ public class AnimalShelterProps {
     @Column(name = "prop_val")
     private String propVal;
 
-    /**
-     * ФК на питомники
-     */
     @Column(name = "chat_id")
     private Long chatId;
 
@@ -43,6 +40,6 @@ public class AnimalShelterProps {
     @Column(name = "date_to")
     private LocalDateTime dateTo;
 
-    @Column(name = "road_map_id")
-    private Long roadMapId;
+    @Column(name = "pet_id")
+    private Long petId;
 }

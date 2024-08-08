@@ -11,32 +11,34 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
-/**
- * Сущность, представляющая словарь свойств.
- * Эта сущность используется для хранения информации о различных свойствах в базе данных.
- */
 @Entity
 @Data
-@Table(name = "property_dict")
+@Table(name = "pet_type_dict")
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class PropertyDict {
-
+public class PetTypeDict {
+    /**
+     * id свойства
+     */
     @Id
-    @Column(name = "prop_id")
-    private Long propId;
-
+    @Column(name = "pet_type_id")
+    private Long petTypeId;
+    /**
+     * имя свойства
+     */
     @Column(name = "name")
     private String name;
 
+    /**
+     * с какой даты свойство активно
+     */
     @Column(name = "date_from")
     private LocalDateTime dateFrom;
 
-
+    /**
+     * когда свойство стало не активно
+     */
     @Column(name = "date_to")
     private LocalDateTime dateTo;
-
-    @Column(name = "entity_id")
-    private Long entityId;
 }
