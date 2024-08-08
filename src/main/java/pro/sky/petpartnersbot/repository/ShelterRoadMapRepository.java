@@ -2,10 +2,7 @@ package pro.sky.petpartnersbot.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import pro.sky.petpartnersbot.entity.PropertyDict;
 import pro.sky.petpartnersbot.entity.ShelterRoadMap;
-
-import java.util.List;
 
 public interface ShelterRoadMapRepository extends JpaRepository<ShelterRoadMap, Long> {
     @Query(value = "select srm.road_map_id, srm.adoption_date, srm.image_data " +
