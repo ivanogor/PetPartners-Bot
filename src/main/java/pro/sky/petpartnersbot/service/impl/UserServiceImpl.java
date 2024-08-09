@@ -9,7 +9,6 @@ import pro.sky.petpartnersbot.repository.UsersRepository;
 import pro.sky.petpartnersbot.service.UserService;
 
 import java.util.List;
-import java.util.Objects;
 
 /**
  * Сервис для работы с пользователями.
@@ -21,70 +20,34 @@ public class UserServiceImpl implements UserService {
     private final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
     private final UsersRepository repository;
 
-    /**
-     * Находит пользователя по идентификатору чата.
-     *
-     * @param chatId Идентификатор чата.
-     * @return Объект User, соответствующий заданному идентификатору чата.
-     */
-    @Override
+    @Override//+
     public User findById(Long chatId) {
-        logger.info("Was invoked find PetParent by ChatId method");
+        logger.info("Was invoked findById method");
         return repository.findByChatId(chatId);
     }
 
-    /**
-     * Добавляет нового пользователя.
-     *
-     * @param user Объект User, который нужно добавить.
-     * @return Объект User, который был добавлен.
-     */
     @Override
     public User addUser(User user) {
-        logger.info("Was invoked create PetParent method");
+        logger.info("Was invoked addUser method");
         return repository.save(user);
     }
 
-    /**
-     * Удаляет пользователя по идентификатору.
-     *
-     * @param id Идентификатор пользователя.
-     */
     @Override
     public void deleteUser(long id) {
-        logger.info("Was invoked delete PetParent method");
-        User obtainedUser = repository.findById(id).orElse(null);
+        logger.info("Was invoked deleteUser method");
         repository.deleteById(id);
     }
 
-    /**
-     * Проверяет, существуют ли пользователи по идентификатору сущности.
-     *
-     * @param id Идентификатор сущности.
-     * @return Количество пользователей, соответствующих заданному идентификатору сущности.
-     */
-    public int checkIfAnyExistByEnt(long id) {
-        return repository.getCntByEntity(id);
+    @Override
+    public List<User> findAllUsersByEntityId(long entityId) {
+        logger.info("Was invoked getAllByEntId method");
+        return repository.findByEntityId(entityId);
     }
 
-    /**
-     * Получает список пользователей по идентификатору сущности.
-     *
-     * @param entity_id Идентификатор сущности.
-     * @return Список объектов User, соответствующих заданному идентификатору сущности.
-     */
-    public List<User> getAllByEntId(long entity_id) {
-        return repository.findByEntityId(entity_id);
-    }
 
-    /**
-     * Находит пользователя по имени пользователя.
-     *
-     * @param userName Имя пользователя.
-     * @return Объект User, соответствующий заданному имени пользователя.
-     */
+    @Override
     public User findByUserName(String userName) {
-        logger.info("Was invoked find PetParent by user_name method");
+        logger.info("Was invoked findByUserName method");
         return repository.findByUserName(userName);
     }
 }
