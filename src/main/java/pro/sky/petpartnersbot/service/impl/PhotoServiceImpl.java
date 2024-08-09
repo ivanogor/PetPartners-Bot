@@ -7,7 +7,7 @@ import org.apache.tomcat.util.http.fileupload.disk.DiskFileItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import pro.sky.petpartnersbot.entity.Photos;
+import pro.sky.petpartnersbot.entity.Photo;
 import pro.sky.petpartnersbot.repository.PhotoRepository;
 import pro.sky.petpartnersbot.service.PhotoService;
 
@@ -30,14 +30,14 @@ public class PhotoServiceImpl implements PhotoService {
 
     @Override
     @Transactional
-    public Photos findPhotoByPetId (long petId) {
+    public Photo findPhotoByPetId (long petId) {
         logger.info("Was invoked findPhotoByPetId method");
         return repository.findByPetId(petId);
     }
 
     @Override
     @Transactional
-    public Photos findPhotoByChatId (long chatId) {
+    public Photo findPhotoByChatId (long chatId) {
         logger.info("Was invoked findPhotoByChatId method");
         return repository.findByChatId(chatId);
     }
@@ -45,7 +45,7 @@ public class PhotoServiceImpl implements PhotoService {
     @Override
     @Transactional
     public void uploadPhoto(Long petId,Long chatId, File photoFile, String token) throws IOException {
-        Photos photo;
+        Photo photo;
         logger.info("Was invoked uploadPhoto method");
         DiskFileItem fileItem;
         String fileUrl = String.format("https://api.telegram.org/file/bot%s/%s", token, photoFile.filePath());
@@ -64,7 +64,7 @@ public class PhotoServiceImpl implements PhotoService {
             if (petId!=null){
                 photo = findPhotoByPetId(petId);
                 if (photo==null) {
-                    photo = Photos.builder()
+                    photo = Photo.builder()
                             .data(fileItem.get())
                             .fileSize(fileItem.getSize())
                             .mediaType(fileItem.getContentType())
@@ -80,7 +80,7 @@ public class PhotoServiceImpl implements PhotoService {
             }else{
                 photo = findPhotoByChatId(chatId);
                 if (photo==null) {
-                photo = Photos.builder()
+                photo = Photo.builder()
                         .data(fileItem.get())
                         .fileSize(fileItem.getSize())
                         .mediaType(fileItem.getContentType())

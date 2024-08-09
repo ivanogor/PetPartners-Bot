@@ -34,20 +34,12 @@ public interface UserService {
     void deleteUser(long id);
 
     /**
-     * Проверяет, существуют ли пользователи по идентификатору сущности.
-     *
-     * @param id Идентификатор сущности.
-     * @return Количество пользователей, соответствующих заданному идентификатору сущности.
-     */
-    int checkIfAnyExistByEnt(long id);
-
-    /**
      * Получает список пользователей по идентификатору сущности.
      *
-     * @param entity_id Идентификатор сущности.
+     * @param entityId Идентификатор сущности.
      * @return Список объектов User, соответствующих заданному идентификатору сущности.
      */
-    List<User> getAllByEntId(long entity_id);
+    List<User> findAllUsersByEntityId(long entityId);
 
     /**
      * Находит пользователя по имени пользователя.

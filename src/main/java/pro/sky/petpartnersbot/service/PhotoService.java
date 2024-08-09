@@ -1,7 +1,7 @@
 package pro.sky.petpartnersbot.service;
 
 import com.pengrad.telegrambot.model.File;
-import pro.sky.petpartnersbot.entity.Photos;
+import pro.sky.petpartnersbot.entity.Photo;
 
 import java.io.IOException;
 
@@ -27,7 +27,7 @@ public interface PhotoService {
      * @param chatId идентификатор чата
      * @return объект Photos, соответствующий заданному идентификатору чата
      */
-    Photos findPhotoByChatId (long chatId);
+    Photo findPhotoByChatId (long chatId);
 
     /**
      * Находит фотографию по идентификатору питомца.
@@ -35,5 +35,5 @@ public interface PhotoService {
      * @param petId идентификатор питомца
      * @return объект Photos, соответствующий заданному идентификатору питомца
      */
-    Photos findPhotoByPetId (long petId);
+    Photo findPhotoByPetId (long petId);
 }

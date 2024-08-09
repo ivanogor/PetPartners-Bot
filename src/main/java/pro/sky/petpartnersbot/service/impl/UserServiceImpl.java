@@ -20,7 +20,7 @@ public class UserServiceImpl implements UserService {
     private final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
     private final UsersRepository repository;
 
-    @Override
+    @Override//+
     public User findById(Long chatId) {
         logger.info("Was invoked findById method");
         return repository.findByChatId(chatId);
@@ -39,16 +39,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public int checkIfAnyExistByEnt(long id) {
-        logger.info("Was invoked checkIfAnyExistByEnt method");
-        return repository.getCntByEntity(id);
+    public List<User> findAllUsersByEntityId(long entityId) {
+        logger.info("Was invoked getAllByEntId method");
+        return repository.findByEntityId(entityId);
     }
 
-    @Override
-    public List<User> getAllByEntId(long entity_id) {
-        logger.info("Was invoked getAllByEntId method");
-        return repository.findByEntityId(entity_id);
-    }
 
     @Override
     public User findByUserName(String userName) {
