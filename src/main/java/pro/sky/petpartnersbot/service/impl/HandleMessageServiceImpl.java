@@ -52,6 +52,7 @@ public class HandleMessageServiceImpl implements HandleMessageService {
     private final PetServiceImpl petService;
     private final PetTypeDictSeviceImpl petTypeDictSevice;
     private final PhotoServiceImpl photoService;
+    private final UserPetServiceImpl userPetService;
 
     /**
      * Обрабатывает входящее сообщение от Telegram API.
@@ -82,11 +83,14 @@ public class HandleMessageServiceImpl implements HandleMessageService {
         UserPos userPos = userPosService.findByChatId(chatId);
         User foundedUser = userService.findById(chatId);
 
-        if (updateText==null){
-            updateText="";
+        if (foundedUser == null){
+            switchFunc("/start",foundedUser,update,chatId,userPos);
+        }else{
+            if (updateText==null){
+                updateText="";
+            }
+            switchFunc(updateText,foundedUser,update,chatId,userPos);
         }
-        switchFunc(updateText,foundedUser,update,chatId,userPos);
-
     }
 
     /**
@@ -140,6 +144,8 @@ public class HandleMessageServiceImpl implements HandleMessageService {
                         .addRow(new KeyboardButton("Фото питомца"));
                 if (user.getEntityId() == TelegramBotConsts.shelt) {
                     propsKeyboard.addRow(new KeyboardButton("Удалить питомца"));
+                }else{
+                    propsKeyboard.addRow(new KeyboardButton("Взять питомца"));
                 }
                 propsKeyboard.addRow(new KeyboardButton("Назад"));
             }
@@ -215,6 +221,34 @@ public class HandleMessageServiceImpl implements HandleMessageService {
         checkResponse(response);
     }
 
+    private void getShltUserPetMenu(User user,String pos){
+        SendMessage message;
+        SendResponse response;
+        List<Pet> shltPetList;
+        String messageText;
+
+        shltPetList = petService.getAllShltPetsWithUser(user.getChatId());
+        ReplyKeyboardMarkup propsKeyboard = new ReplyKeyboardMarkup("").resizeKeyboard(true)
+                .oneTimeKeyboard(false);
+        if (shltPetList!=null) {
+            messageText = messageService.findById("showClientPets").getText();
+
+            for (Pet shltPet : shltPetList) {
+                propsKeyboard.addRow(new KeyboardButton(shltPet.getName()));
+            }
+        }else{
+            messageText = "Активные заявки на питомцев отсутсвуют";
+        }
+
+        propsKeyboard.addRow(new KeyboardButton("Назад"));
+        message = new SendMessage(user.getChatId(), messageText).replyMarkup(propsKeyboard);
+        saveUserPos(user.getChatId(),"Питомцы у клиентов",pos);
+
+        //Проверка выполнения отправки сообщения
+        response = bot.execute(message);
+        checkResponse(response);
+    }
+
     /**
      * Получает меню клиента для выбранного приюта.
      *
@@ -240,8 +274,15 @@ public class HandleMessageServiceImpl implements HandleMessageService {
                 propsKeyboard.addRow(new KeyboardButton(shltProp.getName()));
             }
 
+            if(userPetService.getUserPet(chatId)!=null){
+                propsKeyboard
+                        .addRow(new KeyboardButton("Ваш питомец"));
+            }else{
+                propsKeyboard
+                        .addRow(new KeyboardButton("Все питомцы приюта"));
+            }
+
             propsKeyboard
-                    .addRow(new KeyboardButton("Все питомцы приюта"))
                     .addRow(new KeyboardButton("Схема проезда"))
                     .addRow(new KeyboardButton("Мой номер телефона"))
                     .addRow(new KeyboardButton("Позвать волонтера"))
@@ -362,6 +403,9 @@ public class HandleMessageServiceImpl implements HandleMessageService {
             case "Все питомцы приюта" -> {
                 getShltPetMenu(user,"/start");
             }
+            case "Питомцы у клиентов" -> {
+                getShltUserPetMenu(user,"/start");
+            }
             case "Позвать волонтера" -> {
                 AnimalShelterProps prop = animalShelterPropsService.getUserProp(TelegramBotConsts.shltVol, user.getShlId());
                 String volChatId = "";
@@ -447,6 +491,55 @@ public class HandleMessageServiceImpl implements HandleMessageService {
                         message = new SendMessage(chatId, "Информация отсутсвует");
                     }
                 }
+                response = bot.execute(message);
+                checkResponse(response);
+            }
+            case "Ваш питомец" ->{
+                UserPet userPet = userPetService.getUserPet(chatId);
+                Pet pet = petService.findPetBypetId(userPet.getPetId());
+                User shlt = userService.findById(user.getShlId());
+
+                message = new SendMessage(chatId, pet.getName()+"("+pet.getPetId()+")"+" приют: "+shlt.getUserName());
+                response = bot.execute(message);
+                checkResponse(response);
+            }
+            case "Взять питомца" ->{
+                Long petId = null;
+                try {
+                    petId = Long.parseLong(pos.substring(pos.indexOf("(") + 1, pos.indexOf(")")));
+                }catch(Exception e){
+                    logger.error("Exception occurred: {}, Request Details: param = {} err: {}",
+                            "switchFunc->PetName",pos,e.getMessage());
+                }
+                String petName = petService.findPetBypetId(petId).getName();
+
+                AnimalShelterProps prop = animalShelterPropsService.getUserProp(TelegramBotConsts.shltVol, user.getShlId());
+                String volChatId = "";
+                if (prop != null) {
+                    volChatId = prop.getPropVal();
+                }
+
+                if (volChatId == "") {
+                    message = new SendMessage(chatId, "Приют не указал чат для волонтеров");
+                } else {
+                    if (petName == null){
+                        petName="";
+                    }
+                    bot.execute(new SendMessage(Long.parseLong(animalShelterPropsService.getUserProp(TelegramBotConsts.shltVol, user.getShlId()).getPropVal())
+                            , "Пользователь \n<a href=\"tg://user?id=" + chatId + "\">" +
+                            update.message().chat().firstName() + "</a>\nподал заявку на питомца "+petName+"("+petId+")").parseMode(HTML));
+
+                    UserPet userPet = UserPet.builder()
+                            .chatId(chatId)
+                            .petId(petId)
+                            .build();
+                    userPetService.saveUserPet(userPet);
+
+                    message = new SendMessage(chatId, "Заявка на питомца передана на рассмотрение");
+                    saveUserPos(chatId, "/start", "/start");
+                    switchFunc("/start",user,update,chatId,userPos);
+                }
+
                 response = bot.execute(message);
                 checkResponse(response);
             }

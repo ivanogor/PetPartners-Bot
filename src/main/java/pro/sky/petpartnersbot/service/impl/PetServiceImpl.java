@@ -20,6 +20,10 @@ public class PetServiceImpl implements PetServise {
         return repository.getAllByChatId(chatId);
     }
 
+    public List<Pet> getAllShltPetsWithUser(Long chatId){
+        return repository.getAllByChatIdWithUser(chatId);
+    }
+
     public void addPet(Pet pet){
         repository.save(pet);
     }
