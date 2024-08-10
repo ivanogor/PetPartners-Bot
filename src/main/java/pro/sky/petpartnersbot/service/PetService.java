@@ -21,6 +21,7 @@ public interface PetService {
      * Добавляет нового питомца.
      *
      * @param pet объект Pet, который нужно добавить
+     * @return
      */
     Pet addPet(Pet pet);
 

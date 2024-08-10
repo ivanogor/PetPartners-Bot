@@ -309,7 +309,7 @@ COMMENT ON CONSTRAINT "UNIC_NAME_DATE_TO" ON public.pet_type_dict
 ALTER TABLE IF EXISTS public.pets
     ADD COLUMN photo bigint;
 
-CREATE TABLE public.photo
+CREATE TABLE public.photos
 (
     photo_id bigint primary key,
     data oid,

@@ -6,6 +6,7 @@ import java.util.List;
 
 public interface PetServise {
     List<Pet> getAllShltPets(Long chat_id);
-    Pet findPetBypetId(Long petId);
+    Pet findPetByPetId(Long petId);
     List<Pet> getAllShltPetsWithUser(Long chatId);
+    Pet addPet(Pet pet);
 }

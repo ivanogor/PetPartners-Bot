@@ -6,7 +6,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import pro.sky.petpartnersbot.entity.Pet;
 import pro.sky.petpartnersbot.repository.PetRepository;
-import pro.sky.petpartnersbot.service.PetServise;
+import pro.sky.petpartnersbot.service.PetService;
 
 import java.util.List;
 
@@ -28,8 +28,9 @@ public class PetServiceImpl implements PetService {
         return repository.getAllByChatIdWithUser(chatId);
     }
 
-    public void addPet(Pet pet){
+    public Pet addPet(Pet pet){
         repository.save(pet);
+        return pet;
     }
     public Pet findPetByPetId(Long petId){
         logger.info("Was invoked findPetByPetId method");

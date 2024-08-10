@@ -489,7 +489,7 @@ public class HandleMessageServiceImpl implements HandleMessageService {
             }
             case "Ваш питомец" ->{
                 UserPet userPet = userPetService.getUserPet(chatId);
-                Pet pet = petService.findPetBypetId(userPet.getPetId());
+                Pet pet = petService.findPetByPetId(userPet.getPetId());
                 User shlt = userService.findById(user.getShlId());
 
                 message = new SendMessage(chatId, pet.getName()+"("+pet.getPetId()+")"+" приют: "+shlt.getUserName());
@@ -504,7 +504,7 @@ public class HandleMessageServiceImpl implements HandleMessageService {
                     logger.error("Exception occurred: {}, Request Details: param = {} err: {}",
                             "switchFunc->PetName",pos,e.getMessage());
                 }
-                String petName = petService.findPetBypetId(petId).getName();
+                String petName = petService.findPetByPetId(petId).getName();
 
                 AnimalShelterProps prop = animalShelterPropsService.getUserProp(TelegramBotConsts.shltVol, user.getShlId());
                 String volChatId = "";
