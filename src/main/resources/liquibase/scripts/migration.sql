@@ -338,3 +338,7 @@ insert into property_dict(prop_id,name,date_from,entity_id) values (nextval('pro
 -- changeset Krockle:add_pet_id_animal_shlt_props
 ALTER TABLE IF EXISTS public.animal_shelters_props
     ADD COLUMN pet_id bigint;
+
+-- changeset Krockle:add_new_client_pet_msg_props
+insert into messages(type, text)
+values ('showClientPets','Выберете заявку');

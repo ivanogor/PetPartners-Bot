@@ -18,16 +18,10 @@ public class MessageServiceImpl implements MessageService {
     private final Logger logger = LoggerFactory.getLogger(MessageServiceImpl.class);
     private final MessageRepository repository;
 
-    /**
-     * Находит сообщение по его типу.
-     *
-     * @param type Тип сообщения.
-     * @return Объект Message, соответствующий заданному типу.
-     * @throws RuntimeException если сообщение с заданным типом не найдено.
-     */
+
     @Override
     public Message findById(String type) {
-        logger.info("Was invoked find Message by Type method");
-        return repository.findById(type).orElseThrow();
+        logger.info("Was invoked findById method");
+        return repository.findById(type).orElse(null);
     }
 }

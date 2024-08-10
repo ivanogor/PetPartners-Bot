@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class Photos {
+public class Photo {
     @Id
     @SequenceGenerator(name = "photo_seq", sequenceName = "photo_seq", allocationSize = 1)
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "photo_seq")

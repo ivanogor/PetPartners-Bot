@@ -58,7 +58,7 @@ class HandleMessageServiceImplTest {
     private PropertyDictServiceImpl propertyDictService;
 
     @Mock
-    private PetTypeDictSeviceImpl petTypeDictSevice;
+    private PetTypeDictServiceImpl petTypeDictSevice;
 
     @Mock
     private PetServiceImpl petService;
@@ -68,6 +68,9 @@ class HandleMessageServiceImplTest {
 
     @Mock
     private PhotoServiceImpl photoService;
+
+    @Mock
+    private UserPetServiceImpl userPetService;
 
     @InjectMocks
     private HandleMessageServiceImpl handleMessageService;
@@ -132,7 +135,7 @@ class HandleMessageServiceImplTest {
         given(messageMock.chat().id()).willReturn(obtainUser.getChatId());
         given(bot.execute(any(SendMessage.class))).willReturn(response);
         given(response.isOk()).willReturn(true);
-        given(userService.getAllByEntId(anyLong())).willReturn(users);
+        //given(userService.getAllByEntId(anyLong())).willReturn(users);
         given(messageService.findById(anyString())).willReturn(obtainMessage);
         //when
         handleMessageService.handleMessage(updateMock);
@@ -257,6 +260,82 @@ class HandleMessageServiceImplTest {
     }
 
     @Test
+    @DisplayName("Test take all parent pets list functionality")
+    public void givenParent_whenNeedPetsListByParent_thenTakeAllParentPets() {
+        //given
+        pro.sky.petpartnersbot.entity.Message obtainMessage = MessageUtils.getMessage();
+        User obtainUser = UserUtils.getUser();
+        obtainUser.setEntityId(1L);
+        obtainUser.setShlId(2L);
+        given(userService.findById(anyLong())).willReturn(obtainUser);
+        given(updateMock.message()).willReturn(messageMock);
+        given(messageMock.chat()).willReturn(chatMock);
+        given(messageMock.text()).willReturn("Питомцы у клиентов");
+        given(messageMock.chat().id()).willReturn(obtainUser.getChatId());
+        given(bot.execute(any(SendMessage.class))).willReturn(response);
+        given(response.isOk()).willReturn(true);
+        given(messageService.findById(anyString())).willReturn(obtainMessage);
+        //when
+        handleMessageService.handleMessage(updateMock);
+        //then
+        then(bot).should().execute(argThat(sendMessage -> sendMessage.getParameters().get("text")
+                .equals("text")));
+    }
+
+    @Test
+    @DisplayName("Test take parent pet functionality")
+    public void givenParent_whenNeedParentPet_thenTakeParentPet() {
+        //given
+        User obtainUser = UserUtils.getUser();
+        obtainUser.setEntityId(1L);
+        obtainUser.setShlId(1L);
+        UserPet obtainUserPet = UserPetUtils.getUserPet();
+        Pet obtainPet = PetUtils.getPet();
+        given(userService.findById(anyLong())).willReturn(obtainUser);
+        given(updateMock.message()).willReturn(messageMock);
+        given(messageMock.chat()).willReturn(chatMock);
+        given(messageMock.text()).willReturn("Ваш питомец");
+        given(messageMock.chat().id()).willReturn(obtainUser.getChatId());
+        given(userPetService.getUserPet(anyLong())).willReturn(obtainUserPet);
+        given(petService.findPetByPetId(anyLong())).willReturn(obtainPet);
+        given(bot.execute(any(SendMessage.class))).willReturn(response);
+        given(response.isOk()).willReturn(true);
+        //when
+        handleMessageService.handleMessage(updateMock);
+        //then
+        then(bot).should().execute(argThat(sendMessage -> sendMessage.getParameters().get("text")
+                .equals("name(12) приют: util user name")));
+        //verify(petService, times(1)).addPet(any(Pet.class));
+    }
+
+    @Test
+    @DisplayName("Test adopting pet functionality")
+    public void givenPet_whenAdoptingPet_thenParentTakePet() {
+        //given
+        pro.sky.petpartnersbot.entity.Message obtainMessage = MessageUtils.getMessage();
+        User obtainUser = UserUtils.getUser();
+        obtainUser.setEntityId(1L);
+        obtainUser.setShlId(1L);
+        Pet obtainPet = PetUtils.getPet();
+        UserPos obtainUserPos = UserPosUtils.getUserPos();
+        obtainUserPos.setPos("qqq (10)");
+        given(userService.findById(anyLong())).willReturn(obtainUser);
+        given(updateMock.message()).willReturn(messageMock);
+        given(messageMock.chat()).willReturn(chatMock);
+        given(messageMock.text()).willReturn("Взять питомца");
+        given(messageMock.chat().id()).willReturn(obtainUser.getChatId());
+        given(userPosService.findByChatId(anyLong())).willReturn(obtainUserPos);
+        given(petService.findPetByPetId(anyLong())).willReturn(obtainPet);
+        given(bot.execute(any(SendMessage.class))).willReturn(response);
+        given(response.isOk()).willReturn(true);
+        //when
+        handleMessageService.handleMessage(updateMock);
+        //then
+        then(bot).should().execute(argThat(sendMessage -> sendMessage.getParameters().get("text")
+                .equals("Приют не указал чат для волонтеров")));
+    }
+
+    @Test
     @DisplayName("Test check get all pets functionality")
     public void givenPets_whenResponseAllPets_thenGetAllPets() {
         //given
@@ -330,12 +409,15 @@ class HandleMessageServiceImplTest {
         User obtainUser = UserUtils.getUser();
         Pet obtainPet = PetUtils.getPet();
         UserPos obtainUserPos = UserPosUtils.getUserPos();
+        obtainUser.setEntityId(1L);
+        obtainUserPos.setPos("qqq (10)");
+        obtainUserPos.setPrevPos("/start");
         given(userService.findById(anyLong())).willReturn(obtainUser);
         given(updateMock.message()).willReturn(messageMock);
         given(messageMock.chat()).willReturn(chatMock);
         given(messageMock.text()).willReturn("Удалить питомца");
         given(messageMock.chat().id()).willReturn(obtainUser.getChatId());
-        given(petService.findPetBypetId(anyLong())).willReturn(obtainPet);
+        given(petService.findPetByPetId(anyLong())).willReturn(obtainPet);
         given(userPosService.findByChatId(anyLong())).willReturn(obtainUserPos);
         given(bot.execute(any(SendMessage.class))).willReturn(response);
         given(response.isOk()).willReturn(true);
@@ -343,7 +425,9 @@ class HandleMessageServiceImplTest {
         handleMessageService.handleMessage(updateMock);
         //then
         then(bot).should().execute(argThat(sendMessage -> sendMessage.getParameters()
-                .get("text").equals("Данная функция не поддерживается")));
+                .get("text").equals("Питомец был удален")));
+        then(bot).should().execute(argThat(sendMessage -> sendMessage.getParameters()
+                .get("text").equals("Выберите дальнейшее действие")));
     }
 
     @Test
@@ -397,20 +481,22 @@ class HandleMessageServiceImplTest {
         User obtainUser = UserUtils.getUser();
         UserPos obtainUserPos = UserPosUtils.getUserPos();
         Pet obtainPet = PetUtils.getPet();
+        obtainUserPos.setPos("qqq (10)");
+        obtainUser.setEntityId(1L);
         given(userService.findById(anyLong())).willReturn(obtainUser);
         given(updateMock.message()).willReturn(messageMock);
         given(messageMock.chat()).willReturn(chatMock);
         given(messageMock.text()).willReturn("Имя питомца");
         given(messageMock.chat().id()).willReturn(obtainUser.getChatId());
         given(userPosService.findByChatId(anyLong())).willReturn(obtainUserPos);
-        given(petService.findPetBypetId(anyLong())).willReturn(obtainPet);
+        given(petService.findPetByPetId(anyLong())).willReturn(obtainPet);
         given(bot.execute(any(SendMessage.class))).willReturn(response);
         given(response.isOk()).willReturn(true);
         //when
         handleMessageService.handleMessage(updateMock);
         //then
         then(bot).should().execute(argThat(sendMessage -> sendMessage.getParameters()
-                .get("text").equals("Информация отсутсвует")));
+                .get("text").equals("Вы можете ввести новое имя питомца\nТекущий имя: name")));
     }
 
     @Test
@@ -421,13 +507,14 @@ class HandleMessageServiceImplTest {
         UserPos obtainUserPos = UserPosUtils.getUserPos();
         Pet obtainPet = PetUtils.getPet();
         obtainUser.setEntityId(1L);
+        obtainUserPos.setPos("qqq (10)");
         given(userService.findById(anyLong())).willReturn(obtainUser);
         given(updateMock.message()).willReturn(messageMock);
         given(messageMock.chat()).willReturn(chatMock);
         given(messageMock.text()).willReturn("Возраст питомца");
         given(messageMock.chat().id()).willReturn(obtainUser.getChatId());
         given(userPosService.findByChatId(anyLong())).willReturn(obtainUserPos);
-        given(petService.findPetBypetId(anyLong())).willReturn(obtainPet);
+        given(petService.findPetByPetId(anyLong())).willReturn(obtainPet);
         given(bot.execute(any(SendMessage.class))).willReturn(response);
         given(response.isOk()).willReturn(true);
         //when
@@ -443,8 +530,9 @@ class HandleMessageServiceImplTest {
         //given
         User obtainUser = UserUtils.getUser();
         UserPos obtainUserPos = UserPosUtils.getUserPos();
-        Photos obtainPhoto = PhotoUtils.getPhoto();
+        Photo obtainPhoto = PhotoUtils.getPhoto();
         obtainUser.setEntityId(1L);
+        obtainPhoto.setFilePath("/dirPath/filePath.ext");
         given(userService.findById(anyLong())).willReturn(obtainUser);
         given(updateMock.message()).willReturn(messageMock);
         given(messageMock.chat()).willReturn(chatMock);
@@ -465,8 +553,10 @@ class HandleMessageServiceImplTest {
         //given
         User obtainUser = UserUtils.getUser();
         UserPos obtainUserPos = UserPosUtils.getUserPos();
-        Photos obtainPhoto = PhotoUtils.getPhoto();
+        Photo obtainPhoto = PhotoUtils.getPhoto();
         obtainUser.setEntityId(1L);
+        obtainPhoto.setFilePath("/dirPath/filePath.ext");
+        obtainUserPos.setPos("qqq (10)");
         given(userService.findById(anyLong())).willReturn(obtainUser);
         given(updateMock.message()).willReturn(messageMock);
         given(messageMock.chat()).willReturn(chatMock);
@@ -487,10 +577,11 @@ class HandleMessageServiceImplTest {
         //given
         User obtainUser = UserUtils.getUser();
         UserPos obtainUserPos = UserPosUtils.getUserPos();
-        Photos obtainPhoto = PhotoUtils.getPhoto();
+        Photo obtainPhoto = PhotoUtils.getPhoto();
         PetTypeDict obtainPetTypeDict = PetTypeDictUtils.getPetTypeDict();
         Pet obtainPet = PetUtils.getPet();
         obtainUser.setEntityId(1L);
+        obtainUserPos.setPos("qqq (10)");
         List<PetTypeDict> petTypeDictLst = new ArrayList<>();
         petTypeDictLst.add(obtainPetTypeDict);
         given(userService.findById(anyLong())).willReturn(obtainUser);
@@ -501,7 +592,7 @@ class HandleMessageServiceImplTest {
         given(userPosService.findByChatId(anyLong())).willReturn(obtainUserPos);
         given(petTypeDictSevice.getAllActiveTypes()).willReturn(petTypeDictLst);
         given(petTypeDictSevice.getTypeById(anyLong())).willReturn(obtainPetTypeDict);
-        given(petService.findPetBypetId(anyLong())).willReturn(obtainPet);
+        given(petService.findPetByPetId(anyLong())).willReturn(obtainPet);
         given(bot.execute(any(SendMessage.class))).willReturn(response);
         given(response.isOk()).willReturn(true);
         //when

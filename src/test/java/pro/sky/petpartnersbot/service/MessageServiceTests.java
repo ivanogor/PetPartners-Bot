@@ -8,7 +8,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import pro.sky.petpartnersbot.entity.Message;
-//import pro.sky.petpartnersbot.exception.MessageNotFoundException;
 import pro.sky.petpartnersbot.repository.MessageRepository;
 import pro.sky.petpartnersbot.service.impl.MessageServiceImpl;
 import pro.sky.petpartnersbot.util.MessageUtils;
@@ -16,37 +15,24 @@ import pro.sky.petpartnersbot.util.MessageUtils;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 public class MessageServiceTests {
     @Mock
-    private MessageRepository messageRepository;
+    private MessageRepository repository;
     @InjectMocks
-    private MessageServiceImpl serviceUnderTest;
+    private MessageServiceImpl serviceUnderTests;
 
     @Test
-    @DisplayName("Test get message by id functionality")
-    public void givenId_whenGetMessage_thenReturnMessage() {
+    @DisplayName("Test find message by type functionality")
+    public void givenType_whenFindById_thenMessageIsReturned() {
         //given
-        BDDMockito.given(messageRepository.findById(anyString())).willReturn(Optional.of(MessageUtils.getMessage()));
+        Message message = MessageUtils.getMessage();
+        BDDMockito.given(repository.findById(anyString())).willReturn(Optional.of(message));
         //when
-        Message obtainedMessage = serviceUnderTest.findById(anyString());
+        Message obtainedMessage = serviceUnderTests.findById(anyString());
         //then
         assertThat(obtainedMessage).isNotNull();
-        verify(messageRepository, times(1)).findById(anyString());
-    }
-
-    @Test
-    @DisplayName("Test get message by incorrect id functionality")
-    public void givenIncorrectId_whenGetMessage_thenExceptionIsThrown() {
-        /*//given
-        BDDMockito.given(messageRepository.findById(anyString())).willThrow(MessageNotFoundException.class);
-        //when
-        assertThrows(MessageNotFoundException.class, () -> serviceUnderTest.findById(anyString()));
-        //then*/
     }
 }

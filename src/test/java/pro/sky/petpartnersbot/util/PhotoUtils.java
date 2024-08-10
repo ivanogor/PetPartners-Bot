@@ -1,13 +1,13 @@
 package pro.sky.petpartnersbot.util;
 
-import pro.sky.petpartnersbot.entity.Photos;
+import pro.sky.petpartnersbot.entity.Photo;
 
 public class PhotoUtils {
-    public static Photos getPhoto() {
-        return Photos.builder()
+    public static Photo getPhoto() {
+        return Photo.builder()
                 .photoId(1L)
                 .fileSize(2L)
-                .filePath("/fileDir/filePath.ext")
+                .filePath("filePath")
                 .fileSize(3L)
                 .data(new byte[]{1, 2, 3})
                 .mediaType("mediatype")

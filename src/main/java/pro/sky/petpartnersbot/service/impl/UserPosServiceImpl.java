@@ -18,22 +18,15 @@ public class UserPosServiceImpl implements UserPosService {
     private final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
     private final UserPosRepository repository;
 
-    /**
-     * Находит позицию пользователя по идентификатору чата.
-     *
-     * @param chatId Идентификатор чата.
-     * @return Объект UserPos, соответствующий заданному идентификатору чата.
-     */
+    @Override
     public UserPos findByChatId(Long chatId) {
+        logger.info("Was invoked findByChatId method");
         return repository.findByChatId(chatId);
     }
 
-    /**
-     * Сохраняет позицию пользователя.
-     *
-     * @param userPos Объект UserPos, который нужно сохранить.
-     */
+    @Override
     public void saveUserPos(UserPos userPos) {
+        logger.info("Was invoked saveUserPos method");
         repository.save(userPos);
     }
 }
