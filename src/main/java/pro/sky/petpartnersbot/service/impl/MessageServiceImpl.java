@@ -22,6 +22,6 @@ public class MessageServiceImpl implements MessageService {
     @Override
     public Message findById(String type) {
         logger.info("Was invoked findById method");
-        return repository.findById(type).orElseThrow();
+        return repository.findById(type).orElse(null);
     }
 }
