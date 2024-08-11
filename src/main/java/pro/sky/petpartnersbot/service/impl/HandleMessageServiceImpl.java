@@ -24,10 +24,13 @@ import pro.sky.petpartnersbot.service.utils.KeyboardsForAnswer;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Objects;
 import java.util.regex.Pattern;
@@ -76,7 +79,7 @@ public class HandleMessageServiceImpl implements HandleMessageService {
         UserPos userPos = userPosService.findByChatId(chatId);
         User foundedUser = userService.findById(chatId);
 
-        if (foundedUser == null){
+        if (foundedUser == null&&userPos==null&&!updateText.equals("Приют")&&!updateText.equals("Клиент")){
             switchFunc("/start",foundedUser,update,chatId,userPos);
         }else{
             if (updateText==null){
@@ -269,16 +272,25 @@ public class HandleMessageServiceImpl implements HandleMessageService {
 
             if(userPetService.getUserPet(chatId)!=null){
                 propsKeyboard
-                        .addRow(new KeyboardButton("Ваш питомец"));
+                        .addRow(new KeyboardButton("Ваш питомец"))
+                        .addRow(new KeyboardButton("Отправить отчет о питомце"));
+            }else{
+                propsKeyboard
+                        .addRow(new KeyboardButton("Все питомцы приюта"));
             }
             propsKeyboard
-                    .addRow(new KeyboardButton("Все питомцы приюта"))
                     .addRow(new KeyboardButton("Схема проезда"))
                     .addRow(new KeyboardButton("Мой номер телефона"))
-                    .addRow(new KeyboardButton("Позвать волонтера"))
-                    .addRow(new KeyboardButton("Выбрать другой приют"))
-                    .addRow(new KeyboardButton("Обновить"))
-                    .addRow(new KeyboardButton("Удалить учетную запись"));
+                    .addRow(new KeyboardButton("Позвать волонтера"));
+
+            if(userPetService.getUserPet(chatId)==null){
+                propsKeyboard
+                        .addRow(new KeyboardButton("Выбрать другой приют"))
+                        .addRow(new KeyboardButton("Удалить учетную запись"));
+            }
+            propsKeyboard
+                    .addRow(new KeyboardButton("Обновить"));
+
             message = new SendMessage(chatId, messageText).replyMarkup(propsKeyboard);
             saveUserPos(chatId, "/start", "/start");
         }
@@ -759,6 +771,72 @@ public class HandleMessageServiceImpl implements HandleMessageService {
                 response = bot.execute(message);
                 checkResponse(response);
             }
+            case "Отчет сделан плохо" ->{
+                Long petId = null;
+                try {
+                    petId = Long.parseLong(pos.substring(pos.indexOf("(") + 1, pos.indexOf(")")));
+                } catch (Exception e) {
+                    logger.error("Exception occurred: {}, Request Details: param = {} err: {}",
+                            "switchFunc->PetType", pos, e.getMessage());
+                }
+                UserPet userPet = userPetService.getUserPetByPetId(petId);
+                message = new SendMessage(userPet.getChatId(),"Дорогой усыновитель, мы заметили, что ты заполняешь отчет " +
+                        "не так подробно, как необходимо. Пожалуйста, подойди ответственнее к этому занятию. " +
+                        "В противном случае волонтеры приюта будут обязаны самолично проверять " +
+                        "условия содержания животного");
+                response = bot.execute(message);
+                checkResponse(response);
+            }
+            case "Принять заявку" ->{
+                Long petId = null;
+                try {
+                    petId = Long.parseLong(pos.substring(pos.indexOf("(") + 1, pos.indexOf(")")));
+                } catch (Exception e) {
+                    logger.error("Exception occurred: {}, Request Details: param = {} err: {}",
+                            "switchFunc->PetType", pos, e.getMessage());
+                }
+                UserPet userPet = userPetService.getUserPetByPetId(petId);
+                User clientUser = userService.findById(userPet.getChatId());
+
+                clientUser.setAdoptionDate(LocalDateTime.now().plusDays(1));
+                userService.addUser(clientUser);
+                message = new SendMessage(chatId,"Питомец теперь считается выданным отчеты будут приниматься с завтрашнего дня");
+                response = bot.execute(message);
+                checkResponse(response);
+                switchFunc(prevPos, user, update, chatId, userPos);
+            }
+            case "Отклонить/возврат питомца" ->{
+                Long petId = null;
+                try {
+                    petId = Long.parseLong(pos.substring(pos.indexOf("(") + 1, pos.indexOf(")")));
+                } catch (Exception e) {
+                    logger.error("Exception occurred: {}, Request Details: param = {} err: {}",
+                            "switchFunc->PetType", pos, e.getMessage());
+                }
+                UserPet userPet = userPetService.getUserPetByPetId(petId);
+                User clientUser = userService.findById(userPet.getChatId());
+
+                clientUser.setAdoptionDate(null);
+                userService.addUser(clientUser);
+                userPetService.deleteUserPet(userPet);
+
+                message = new SendMessage(chatId,"Клиенту с текущего момента отказано в питомце или он(питомец) веозвращен в питомник");
+                response = bot.execute(message);
+                checkResponse(response);
+                switchFunc(prevPos, user, update, chatId, userPos);
+            }
+            case "Отправить отчет о питомце" -> {
+                LocalDateTime adoptonDay = user.getAdoptionDate();
+                Duration duration = Duration.between(adoptonDay.toInstant(ZoneOffset.UTC),LocalDateTime.now().toInstant(ZoneOffset.UTC));
+
+                message = new SendMessage(chatId,"Сегодня "+duration.toDays()+" день отчета заполните пожалуйста отчет по форме:" +
+                        " Фото животного, рацион животного, общее самочувствие и привыкание к новому месту," +
+                        " Изменения в поведении: отказ от старых привычек, приобретение новых").replyMarkup(KeyboardsForAnswer.RETURN_KEYBOARD);
+
+                response = bot.execute(message);
+                checkResponse(response);
+                saveUserPos(chatId,"Отправить отчет о питомце","/start");
+            }
             case "Назад", "Обновить" -> {
                 switchFunc(prevPos, user, update, chatId, userPos);
             }
@@ -778,7 +856,87 @@ public class HandleMessageServiceImpl implements HandleMessageService {
                             "switchFunc->Default", param, chatId, e.getMessage());
                 }
                 pet = petService.findPetByPetId(petId);
-                if (pos.equals("Все питомцы приюта") || pet != null) {
+                if (pos.equals("Питомцы у клиентов")){
+
+                    ReplyKeyboardMarkup propsKeyboard = new ReplyKeyboardMarkup("").resizeKeyboard(true)
+                            .oneTimeKeyboard(false);
+
+                    UserPet userPet = userPetService.getUserPetByPetId(petId);
+
+                    User clientUser = userService.findById(userPet.getChatId());
+
+                    if(clientUser.getAdoptionDate()==null){
+                        propsKeyboard.addRow(new KeyboardButton("Принять заявку"));
+                    }
+                    propsKeyboard.addRow(new KeyboardButton("Отклонить/возврат питомца"))
+                            .addRow("Отчет сделан плохо")
+                            .addRow("Назад");
+
+                    message = new SendMessage(chatId,"Выберите дальнейшее действие").replyMarkup(propsKeyboard);
+                    response = bot.execute(message);
+                    checkResponse(response);
+                    saveUserPos(chatId,param,pos);
+                } else if (pos.equals("Отправить отчет о питомце")) {
+                    var mesPhoto = update.message().photo();
+                    var mesFile = update.message().document();
+
+                    String fileId = "";
+                    if (mesPhoto != null) {
+                        fileId = mesPhoto[mesPhoto.length - 1].fileId();
+                    } else if (mesFile != null) {
+                        fileId = mesFile.fileId();
+                    }
+
+                    GetFile getFileRequest = new GetFile(fileId);
+                    GetFileResponse getFileResponse = bot.execute(getFileRequest);
+                    File file = getFileResponse.file();
+
+                    if (mesPhoto == null&&mesFile==null) {
+                        message = new SendMessage(chatId,"В сообщении отчета отсутствует фото");
+                        response = bot.execute(message);
+                        checkResponse(response);
+                    } else if(update.message().caption()==null){
+                        message = new SendMessage(chatId,"В сообщении отчета отсутствует текст");
+                        response = bot.execute(message);
+                        checkResponse(response);
+                    } else {
+                        DiskFileItem fileItem;
+                        String fileUrl = String.format("https://api.telegram.org/file/bot%s/%s", bot.getToken(), file.filePath());
+                        try (InputStream in = new URL(fileUrl).openStream()) {
+                            String prefix = file.filePath().substring(file.filePath().lastIndexOf("/") + 1, file.filePath().lastIndexOf("."));
+                            String suffix = file.filePath().substring(file.filePath().lastIndexOf(".") + 1);
+                            Path tempFile = Files.createTempFile(prefix, suffix);
+                            Files.copy(in, tempFile, StandardCopyOption.REPLACE_EXISTING);
+                            String mimeType = getMimeType(suffix);
+                            if (mimeType == null) {
+                                mimeType = "application/octet-stream";
+                            }
+                            fileItem = new DiskFileItem(tempFile.toFile().getName(), mimeType, true, tempFile.toFile().getName(), (int) tempFile.toFile().length(), tempFile.getParent().toFile());
+                            fileItem.getOutputStream().write(Files.readAllBytes(tempFile));
+                            java.io.File newFile = new java.io.File(tempFile.toAbsolutePath().toString());
+
+                            if (mesPhoto!=null) {
+                                SendPhoto photoMessage = new SendPhoto(Long.parseLong(animalShelterPropsService.getUserProp(TelegramBotConsts.shltVol, user.getShlId()).getPropVal()), newFile)
+                                            .caption("Пользователь \n<a href=\"tg://user?id=" + chatId + "\">" +
+                                                    update.message().chat().firstName() + "</a>\nприслал отчет:\n"+
+                                                    update.message().caption()).parseMode(HTML);
+                                response = bot.execute(photoMessage);
+                            } else {
+                                SendDocument docMessage = new SendDocument(Long.parseLong(animalShelterPropsService.getUserProp(TelegramBotConsts.shltVol, user.getShlId()).getPropVal()), newFile)
+                                        .caption("Пользователь \n<a href=\"tg://user?id=" + chatId + "\">" +
+                                                update.message().chat().firstName() + "</a>\nприслал отчет:\n"+
+                                                update.message().caption()).parseMode(HTML);
+                                response = bot.execute(docMessage);
+                            }
+
+                            checkResponse(response);
+                        }catch(Exception e){
+                            logger.error("Exception occurred: {}, Request Details: chatId:{} err: {}",
+                                    "uploadPhoto",chatId,e.getMessage());
+                        }
+                    }
+                    switchFunc(prevPos, user, update, chatId, userPos);
+                } else if (pos.equals("Все питомцы приюта") || pet != null) {
                     getShltPropsMenu(user, param, "Все питомцы приюта", TelegramBotConsts.pet);
                 } else if (pos.equals("Имя питомца")) {
                     if (Pattern.matches("^[a-zA-Zа-яА-ЯёЁ\\- ]+$", update.message().text())) {

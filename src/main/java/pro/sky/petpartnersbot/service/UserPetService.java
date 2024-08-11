@@ -14,4 +14,7 @@ public interface UserPetService {
      * @param userPet сущность UserPet, содержащая информацию о питомце пользователя
      */
     void saveUserPet(UserPet userPet);
+    UserPet getUserPetByPetId(Long petId);
+    UserPet getUserPet(Long chatId);
+    void deleteUserPet(UserPet userPet);
 }

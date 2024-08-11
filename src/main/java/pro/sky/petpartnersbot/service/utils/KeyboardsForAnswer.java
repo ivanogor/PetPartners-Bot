@@ -30,6 +30,7 @@ public class KeyboardsForAnswer {
             .addRow(new KeyboardButton("Назад"))
             .resizeKeyboard(true)
             .oneTimeKeyboard(false);
+
     public final static Keyboard PETS_KEYBOARD = new ReplyKeyboardMarkup(new KeyboardButton("Информация о приюте"))
             .addRow(new KeyboardButton("Все питомцы приюта"))
             .addRow(new KeyboardButton("Питомцы у клиентов"))
