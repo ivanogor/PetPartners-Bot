@@ -270,11 +270,7 @@ public class HandleMessageServiceImpl implements HandleMessageService {
             if(userPetService.getUserPet(chatId)!=null){
                 propsKeyboard
                         .addRow(new KeyboardButton("Ваш питомец"));
-            }else{
-                propsKeyboard
-                        .addRow(new KeyboardButton("Все питомцы приюта"));
             }
-
             propsKeyboard
                     .addRow(new KeyboardButton("Все питомцы приюта"))
                     .addRow(new KeyboardButton("Схема проезда"))
