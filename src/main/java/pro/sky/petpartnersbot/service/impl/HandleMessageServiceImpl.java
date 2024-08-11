@@ -270,11 +270,7 @@ public class HandleMessageServiceImpl implements HandleMessageService {
             if(userPetService.getUserPet(chatId)!=null){
                 propsKeyboard
                         .addRow(new KeyboardButton("Ваш питомец"));
-            }else{
-                propsKeyboard
-                        .addRow(new KeyboardButton("Все питомцы приюта"));
             }
-
             propsKeyboard
                     .addRow(new KeyboardButton("Все питомцы приюта"))
                     .addRow(new KeyboardButton("Схема проезда"))
@@ -552,7 +548,7 @@ public class HandleMessageServiceImpl implements HandleMessageService {
                 if (user.getEntityId().equals(TelegramBotConsts.shelt)) {
                     message = new SendMessage(chatId, "Вы можете ввести возраст питомца\n" +
                             "Текущий возраст: " + petAge).replyMarkup(KeyboardsForAnswer.RETURN_KEYBOARD);
-                    saveUserPos(chatId, "Имя питомца", pos);
+                    saveUserPos(chatId, "Возраст питомца", pos);
                 } else {
                     if (!petAge.isEmpty()) {
                         message = new SendMessage(chatId, petAge);
