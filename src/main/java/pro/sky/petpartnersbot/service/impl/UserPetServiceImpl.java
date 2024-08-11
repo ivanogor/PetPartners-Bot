@@ -8,6 +8,9 @@ import pro.sky.petpartnersbot.entity.UserPet;
 import pro.sky.petpartnersbot.repository.UserPetRepository;
 import pro.sky.petpartnersbot.service.UserPetService;
 
+/**
+ * Сервис для работы с сущностями UserPet.
+ */
 @Service
 @RequiredArgsConstructor
 public class UserPetServiceImpl implements UserPetService {
@@ -15,10 +18,12 @@ public class UserPetServiceImpl implements UserPetService {
     private final UserPetRepository repository;
 
     public void saveUserPet(UserPet userPet){
+        logger.info("Was invoked saveUserPet method");
         repository.save(userPet);
     }
 
     public UserPet getUserPet(Long chatId){
+        logger.info("Was invoked getUserPet method");
         return repository.findByChatId(chatId);
     }
 
