@@ -5,4 +5,5 @@ import pro.sky.petpartnersbot.entity.UserPet;
 
 public interface UserPetRepository extends JpaRepository<UserPet, Long> {
     UserPet findByChatId (Long chatId);
+    UserPet findByPetId (Long petId);
 }

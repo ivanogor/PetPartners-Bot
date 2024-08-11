@@ -22,9 +22,19 @@ public class UserPetServiceImpl implements UserPetService {
         repository.save(userPet);
     }
 
+    public void deleteUserPet(UserPet userPet){
+        logger.info("Was invoked saveUserPet method");
+        repository.delete(userPet);
+    }
+
     public UserPet getUserPet(Long chatId){
         logger.info("Was invoked getUserPet method");
         return repository.findByChatId(chatId);
+    }
+
+    public UserPet getUserPetByPetId(Long petId){
+        logger.info("Was invoked getUserPetByPetId method");
+        return repository.findByPetId(petId);
     }
 
 }
