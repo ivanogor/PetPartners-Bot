@@ -60,6 +60,13 @@ public interface PropertyDictRepository extends JpaRepository<PropertyDict, Long
             "and COALESCE(asp.date_to, CURRENT_DATE + 1) > CURRENT_TIMESTAMP)", nativeQuery = true)
     List<PropertyDict> getChatIdFilled(Long entityId, Long chatId);
 
+    /**
+     * Получает список свойств по идентификатору сущности и идентификатору питомца, исключая свойства с определенным prop_id.
+     *
+     * @param entityId идентификатор сущности
+     * @param petId идентификатор питомца
+     * @return список объектов PropertyDict, соответствующих заданным идентификаторам сущности и питомца
+     */
     @Query(value = "select * " +
             "from property_dict pd " +
             "where pd.entity_id = ?1 " +

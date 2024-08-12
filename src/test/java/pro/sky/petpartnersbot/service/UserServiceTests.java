@@ -30,7 +30,7 @@ public class UserServiceTests {
 
     @Test
     @DisplayName("Test add user functionality")
-    public void givenUser_whenAddUser_thenUserIsReturn() {
+    public void givenUser_whenAddUser_thenUserIsReturned() {
         //given
         User userToAdd = UserUtils.getUser();
         BDDMockito.given(usersRepository.save(userToAdd)).willReturn(userToAdd);
@@ -41,7 +41,7 @@ public class UserServiceTests {
     }
     @Test
     @DisplayName("Test find by id functionality")
-    public void givenId_whenFindById_thenUserIsReturn() {
+    public void givenId_whenFindById_thenUserIsReturned() {
         //given
         User user = UserUtils.getUser();
         BDDMockito.given(usersRepository.findByChatId(anyLong())).willReturn(user);

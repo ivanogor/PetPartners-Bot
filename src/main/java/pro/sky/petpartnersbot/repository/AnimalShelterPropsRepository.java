@@ -23,6 +23,13 @@ public interface AnimalShelterPropsRepository extends JpaRepository<AnimalShelte
                    "and COALESCE(asp.date_to,CURRENT_DATE+1)>CURRENT_TIMESTAMP", nativeQuery = true)
     AnimalShelterProps getUserProp(Long propId,Long shelterId);
 
+    /**
+     * Получает свойство приюта для указанного свойства и питомца.
+     *
+     * @param propId идентификатор свойства
+     * @param petId идентификатор питомца
+     * @return свойство приюта для питомца
+     */
     @Query(value = "select * " +
             "from animal_shelters_props asp " +
             "where asp.prop_id = ?1 " +

@@ -23,7 +23,7 @@ public class UserPetServiceImpl implements UserPetService {
     }
 
     public void deleteUserPet(UserPet userPet){
-        logger.info("Was invoked saveUserPet method");
+        logger.info("Was invoked deleteUserPet method");
         repository.delete(userPet);
     }
 
