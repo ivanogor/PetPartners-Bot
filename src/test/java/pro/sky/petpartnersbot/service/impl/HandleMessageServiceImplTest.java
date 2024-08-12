@@ -577,7 +577,6 @@ class HandleMessageServiceImplTest {
         //given
         User obtainUser = UserUtils.getUser();
         UserPos obtainUserPos = UserPosUtils.getUserPos();
-        Photo obtainPhoto = PhotoUtils.getPhoto();
         PetTypeDict obtainPetTypeDict = PetTypeDictUtils.getPetTypeDict();
         Pet obtainPet = PetUtils.getPet();
         obtainUser.setEntityId(1L);
@@ -602,24 +601,104 @@ class HandleMessageServiceImplTest {
                 .get("text").equals("Выберите тип питомца\nТекущий тип: name")));
     }
 
-   /* @Test
-    @DisplayName("Test for sending report information functionality")
-    public void givenHowToSendReport_whenSendingReportCommand_thenUserTakeInformationAboutReport() {
+    @Test
+    @DisplayName("Test accept an adoption application functionality")
+    public void givenAdoptApplication_whenNeedAccept_thenAccepting() {
         //given
-        pro.sky.petpartnersbot.entity.Message obtainMessage = MessageUtils.getMessage();
         User obtainUser = UserUtils.getUser();
-        Long chatId = 14569L;
+        UserPos obtainUserPos = UserPosUtils.getUserPos();
+        UserPet obtainUserPet = UserPetUtils.getUserPet();
+        obtainUser.setEntityId(1L);
+        obtainUserPos.setPos("qqq (10)");
         given(userService.findById(anyLong())).willReturn(obtainUser);
         given(updateMock.message()).willReturn(messageMock);
         given(messageMock.chat()).willReturn(chatMock);
-        given(messageMock.text()).willReturn("Прислать отчет о питомце");
+        given(messageMock.text()).willReturn("Принять заявку");
         given(messageMock.chat().id()).willReturn(obtainUser.getChatId());
+        given(userPosService.findByChatId(anyLong())).willReturn(obtainUserPos);
+        given(userPetService.getUserPetByPetId(anyLong())).willReturn(obtainUserPet);
         given(bot.execute(any(SendMessage.class))).willReturn(response);
         given(response.isOk()).willReturn(true);
         //when
         handleMessageService.handleMessage(updateMock);
         //then
         then(bot).should().execute(argThat(sendMessage -> sendMessage.getParameters()
-                .get("text").equals("Тест3")));
-    }*/
+                .get("text").equals("Питомец теперь считается выданным отчеты будут приниматься с завтрашнего дня")));
+    }
+
+    @Test
+    @DisplayName("Test report not accepted functionality")
+    public void givenReport_whenNoAccepted_thenProcessing() {
+        //given
+        User obtainUser = UserUtils.getUser();
+        UserPos obtainUserPos = UserPosUtils.getUserPos();
+        UserPet obtainUserPet = UserPetUtils.getUserPet();
+        obtainUser.setEntityId(1L);
+        obtainUserPos.setPos("qqq (10)");
+        given(userService.findById(anyLong())).willReturn(obtainUser);
+        given(updateMock.message()).willReturn(messageMock);
+        given(messageMock.chat()).willReturn(chatMock);
+        given(messageMock.text()).willReturn("Отчет сделан плохо");
+        given(messageMock.chat().id()).willReturn(obtainUser.getChatId());
+        given(userPosService.findByChatId(anyLong())).willReturn(obtainUserPos);
+        given(userPetService.getUserPetByPetId(anyLong())).willReturn(obtainUserPet);
+        given(bot.execute(any(SendMessage.class))).willReturn(response);
+        given(response.isOk()).willReturn(true);
+        //when
+        handleMessageService.handleMessage(updateMock);
+        //then
+        then(bot).should().execute(argThat(sendMessage -> sendMessage.getParameters()
+                .get("text").equals("Дорогой усыновитель, мы заметили, что ты заполняешь отчет " +
+                        "не так подробно, как необходимо. Пожалуйста, подойди ответственнее к этому занятию. " +
+                        "В противном случае волонтеры приюта будут обязаны самолично проверять " +
+                        "условия содержания животного")));
+    }
+
+    @Test
+    @DisplayName("Test return of the pet functionality")
+    public void givenPet_whenNeedReturnPet_thenProcessing() {
+        //given
+        User obtainUser = UserUtils.getUser();
+        UserPos obtainUserPos = UserPosUtils.getUserPos();
+        UserPet obtainUserPet = UserPetUtils.getUserPet();
+        obtainUser.setEntityId(1L);
+        obtainUserPos.setPos("qqq (10)");
+        given(userService.findById(anyLong())).willReturn(obtainUser);
+        given(updateMock.message()).willReturn(messageMock);
+        given(messageMock.chat()).willReturn(chatMock);
+        given(messageMock.text()).willReturn("Отклонить/возврат питомца");
+        given(messageMock.chat().id()).willReturn(obtainUser.getChatId());
+        given(userPosService.findByChatId(anyLong())).willReturn(obtainUserPos);
+        given(userPetService.getUserPetByPetId(anyLong())).willReturn(obtainUserPet);
+        given(bot.execute(any(SendMessage.class))).willReturn(response);
+        given(response.isOk()).willReturn(true);
+        //when
+        handleMessageService.handleMessage(updateMock);
+        //then
+        then(bot).should().execute(argThat(sendMessage -> sendMessage.getParameters()
+                .get("text").equals("Клиенту с текущего момента отказано в питомце или он(питомец) возвращен в питомник")));
+    }
+
+    @Test
+    @DisplayName("Test report sending functionality")
+    public void givenReport_whenNeedSend_thenSending() {
+        //given
+        User obtainUser = UserUtils.getUser();
+        UserPos obtainUserPos = UserPosUtils.getUserPos();
+        obtainUserPos.setPos("qqq (10)");
+        given(userService.findById(anyLong())).willReturn(obtainUser);
+        given(updateMock.message()).willReturn(messageMock);
+        given(messageMock.chat()).willReturn(chatMock);
+        given(messageMock.text()).willReturn("Отправить отчет о питомце");
+        given(userPosService.findByChatId(anyLong())).willReturn(obtainUserPos);
+        given(bot.execute(any(SendMessage.class))).willReturn(response);
+        given(response.isOk()).willReturn(true);
+        //when
+        handleMessageService.handleMessage(updateMock);
+        //then
+        then(bot).should().execute(argThat(sendMessage -> sendMessage.getParameters()
+                .get("text").equals("Сегодня "+0+" день отчета заполните пожалуйста отчет по форме:" +
+                        " Фото животного, рацион животного, общее самочувствие и привыкание к новому месту," +
+                        " Изменения в поведении: отказ от старых привычек, приобретение новых")));
+    }
 }

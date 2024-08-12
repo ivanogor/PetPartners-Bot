@@ -820,7 +820,7 @@ public class HandleMessageServiceImpl implements HandleMessageService {
                 userService.addUser(clientUser);
                 userPetService.deleteUserPet(userPet);
 
-                message = new SendMessage(chatId,"Клиенту с текущего момента отказано в питомце или он(питомец) веозвращен в питомник");
+                message = new SendMessage(chatId,"Клиенту с текущего момента отказано в питомце или он(питомец) возвращен в питомник");
                 response = bot.execute(message);
                 checkResponse(response);
                 switchFunc(prevPos, user, update, chatId, userPos);
