@@ -21,28 +21,22 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Builder
 public class User {
-    /**
-     * Идентификатор чата Telegram, связанный с владельцем питомца.
-     */
     @Id
     @Column(name = "chat_id")
     private Long chatId;
 
-    /**
-     * Имя пользователя (username) владельца питомца в Telegram.
-     */
     @Column(name = "user_name")
     private String userName;
 
-    /**
-     * Контактные данные владельца питомца.
-     */
     @Column(name = "contacts")
     private String contacts;
 
-    /**
-     * Флаг, указывающий, является ли пользователь владельцем питомца.
-     */
     @Column(name = "adoption_date")
     private LocalDateTime adoptionDate;
+
+    @Column(name = "entity_id")
+    private Long entityId;
+
+    @Column(name = "shl_id")
+    private Long shlId;
 }

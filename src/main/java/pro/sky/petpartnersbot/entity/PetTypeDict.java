@@ -13,27 +13,32 @@ import java.time.LocalDateTime;
 
 @Entity
 @Data
-@Table(name = "animal_shelters")
+@Table(name = "pet_type_dict")
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class AnimalShelter {
+public class PetTypeDict {
     /**
-     * id Питомника
+     * id свойства
      */
     @Id
-    @Column(name = "shelter_id")
-    private Long shelterId;
-
+    @Column(name = "pet_type_id")
+    private Long petTypeId;
     /**
-     * Название питомника
+     * имя свойства
      */
     @Column(name = "name")
     private String name;
 
     /**
-     * Дата добавления записи
+     * с какой даты свойство активно
      */
-    @Column(name = "time_stamp")
-    private LocalDateTime timeStamp;
+    @Column(name = "date_from")
+    private LocalDateTime dateFrom;
+
+    /**
+     * когда свойство стало не активно
+     */
+    @Column(name = "date_to")
+    private LocalDateTime dateTo;
 }

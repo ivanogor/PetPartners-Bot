@@ -8,10 +8,11 @@ import pro.sky.petpartnersbot.entity.User;
 import pro.sky.petpartnersbot.repository.UsersRepository;
 import pro.sky.petpartnersbot.service.UserService;
 
+import java.util.List;
 
-/*
- * Сервис для управления объектами User.
- * Этот сервис предоставляет методы для поиска, создания и удаления записей о родителях питомцев.
+/**
+ * Сервис для работы с пользователями.
+ * Этот класс отвечает за поиск, создание, удаление и другие операции с пользователями.
  */
 @Service
 @RequiredArgsConstructor
@@ -19,38 +20,34 @@ public class UserServiceImpl implements UserService {
     private final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
     private final UsersRepository repository;
 
-
-    /**
-     * Находит родителя питомца по заданному идентификатору чата.
-     *
-     * @param chatId Идентификатор чата, по которому ищется родитель питомца.
-     * @return Объект PetParent, соответствующий заданному идентификатору чата, или null, если такой записи нет.
-     */
-    @Override
+    @Override//+
     public User findById(Long chatId) {
-        logger.info("Was invoked find PetParent by ChatId method");
+        logger.info("Was invoked findById method");
         return repository.findByChatId(chatId);
     }
 
-    /**
-     * Создает новую запись о родителе питомца.
-     *
-     * @param user Объект PetParent, который нужно сохранить.
-     */
     @Override
-    public void addUser(User user) {
-        logger.info("Was invoked create PetParent method");
-        repository.save(user);
+    public User addUser(User user) {
+        logger.info("Was invoked addUser method");
+        return repository.save(user);
     }
 
-    /**
-     * Удаляет запись о родителе питомца по заданному идентификатору.
-     *
-     * @param id Идентификатор записи, которую нужно удалить.
-     */
     @Override
     public void deleteUser(long id) {
-        logger.info("Was invoked delete PetParent method");
+        logger.info("Was invoked deleteUser method");
         repository.deleteById(id);
+    }
+
+    @Override
+    public List<User> findAllUsersByEntityId(long entityId) {
+        logger.info("Was invoked getAllByEntId method");
+        return repository.findByEntityId(entityId);
+    }
+
+
+    @Override
+    public User findByUserName(String userName) {
+        logger.info("Was invoked findByUserName method");
+        return repository.findByUserName(userName);
     }
 }

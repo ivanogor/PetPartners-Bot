@@ -4,12 +4,37 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import pro.sky.petpartnersbot.entity.AnimalShelterProps;
 
+/**
+ * Репозиторий для работы с свойствами приютов для животных.
+ */
 public interface AnimalShelterPropsRepository extends JpaRepository<AnimalShelterProps, String> {
-    @Query(value = "select prop_val " +
+/**
+     * Получает идентификатор чата волонтеров для указанного свойства и приюта.
+     *
+     * @param propId идентификатор свойства
+     * @param shelterId идентификатор приюта
+     * @return идентификатор чата волонтеров
+     */
+    @Query(value = "select * " +
                    "from animal_shelters_props asp " +
                    "where asp.prop_id = ?1 " +
-                   "and asp.shelter_id = ?2 " +
+                   "and asp.chat_id = ?2 " +
                    "and asp.date_from<=CURRENT_TIMESTAMP " +
                    "and COALESCE(asp.date_to,CURRENT_DATE+1)>CURRENT_TIMESTAMP", nativeQuery = true)
-    String getVolunteerChatId(Long prop_id,Long shelter_id);
+    AnimalShelterProps getUserProp(Long propId,Long shelterId);
+
+    /**
+     * Получает свойство приюта для указанного свойства и питомца.
+     *
+     * @param propId идентификатор свойства
+     * @param petId идентификатор питомца
+     * @return свойство приюта для питомца
+     */
+    @Query(value = "select * " +
+            "from animal_shelters_props asp " +
+            "where asp.prop_id = ?1 " +
+            "and asp.pet_id = ?2 " +
+            "and asp.date_from<=CURRENT_TIMESTAMP " +
+            "and COALESCE(asp.date_to,CURRENT_DATE+1)>CURRENT_TIMESTAMP", nativeQuery = true)
+    AnimalShelterProps getPetProp(Long propId,Long petId);
 }
