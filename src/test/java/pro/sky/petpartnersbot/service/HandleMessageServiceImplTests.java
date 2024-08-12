@@ -26,7 +26,7 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class HandleMessageServiceImplTest {
+class HandleMessageServiceImplTests {
 
     @Mock
     private Update updateMock;
