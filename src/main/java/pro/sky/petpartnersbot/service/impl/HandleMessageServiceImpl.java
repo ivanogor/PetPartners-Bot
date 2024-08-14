@@ -573,7 +573,12 @@ public class HandleMessageServiceImpl implements HandleMessageService {
                 checkResponse(response);
             }
             case "Схема проезда" -> {
-                Photo photo = photoService.findPhotoByChatId(chatId);
+                Photo photo;
+                if (user.getEntityId()==TelegramBotConsts.shelt){
+                    photo = photoService.findPhotoByChatId(chatId);
+                } else {
+                    photo = photoService.findPhotoByChatId(user.getShlId());
+                }
 
                 if (photo == null) {
                     if (user.getEntityId().equals(TelegramBotConsts.shelt)) {
